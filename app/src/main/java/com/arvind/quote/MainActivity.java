@@ -5,10 +5,10 @@ import android.content.Intent;
 import android.graphics.drawable.AnimationDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
@@ -16,33 +16,43 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.wang.avi.AVLoadingIndicatorView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import static com.arvind.quote.Auth.APP_KEY_QUOTE;
 
 public class MainActivity extends AppCompatActivity {
 
     public static boolean isRequested = false;
-
     public static String TAG = "QuoteApp";
-    
+    public RequestQueue requestQueue;
+    public JsonObjectRequest jsonObjectRequest;
+    private GestureDetector mGestureDetector;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        mGestureDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         if (isNetworkAvailable()) {
             Log.v(TAG, "INTERNET CONNECTIVITY : OK");
             Toast.makeText(this, "Connected to Internet", Toast.LENGTH_SHORT).show();
@@ -52,36 +62,21 @@ public class MainActivity extends AppCompatActivity {
         }
 
         RelativeLayout rootLayout = (RelativeLayout) findViewById(R.id.root_layout);
-        generateStuffs(rootLayout);
 
         AnimationDrawable anim = (AnimationDrawable) rootLayout.getBackground();
         anim.setEnterFadeDuration(1000);
         anim.setExitFadeDuration(1000);
         // Start the animating background
         anim.start();
+
+        SwipeListener swipeListener = new SwipeListener();
+        mGestureDetector = new GestureDetector(this, swipeListener);
+
+        requestQueue = Volley.newRequestQueue(this);
+
+        generateStuffs(rootLayout);
     }
 
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-
-        RelativeLayout rootLayout = (RelativeLayout) findViewById(R.id.root_layout);
-
-        switch(event.getAction()) {
-            case(MotionEvent.ACTION_MOVE):
-                if(!isRequested) {
-                    generateStuffs(rootLayout);
-                    Log.d(TAG, "Received Gesture, Fetching Quote");
-                    isRequested = true;
-                }
-                else {
-                    Log.d(TAG, "Request is being processed");
-                }
-                return true;
-            default:
-                return super.onTouchEvent(event);
-        }
-    }
-    
     /* To Check if we're connected to the Internet */
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -118,141 +113,124 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void generateStuffs(View view) {
-        new Quote().execute("https://favqs.com/api/quotes/" + generateRandomNumber().toString());
-    }
-
-    class Quote extends AsyncTask<String,String,String> {
-
         TextView quoteTextView = (TextView) findViewById(R.id.quote_text_view);
         TextView authorTextView = (TextView) findViewById(R.id.author_text_view);
         TextView tagsTextView = (TextView) findViewById(R.id.tags_text_view);
         ImageButton shareImage = (ImageButton) findViewById(R.id.share_image_view);
         AVLoadingIndicatorView loadingIndicator = (AVLoadingIndicatorView) findViewById(R.id.loading_indicator_view);
 
-        // Wallpaper to be applied to RelativeLayout
-        // Bad Wallpaper API, commented it for now
-        // Bitmap bmp;
-        // ImageView bgImage = (ImageView) findViewById(R.id.bg_image);
+        // Hide 'em views
+        quoteTextView.setVisibility(View.GONE);
+        authorTextView.setVisibility(View.GONE);
+        tagsTextView.setVisibility(View.GONE);
+        shareImage.setVisibility(View.GONE);
 
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
+        // Set Loading Indicator
+        loadingIndicator.setVisibility(View.VISIBLE);
+        loadingIndicator.smoothToShow();
 
-            // Hide 'em views
-            quoteTextView.setVisibility(View.GONE);
-            authorTextView.setVisibility(View.GONE);
-            tagsTextView.setVisibility(View.GONE);
-            shareImage.setVisibility(View.GONE);
+        // Creating a new GET JSONObject request
+        //
+        // Params
+        // The Request method - GET
+        // The Request URL - a random quote's URL
+        // A Listener for performing actions on successfully obtaining a JSON Object
+        // A Listener for performing actions if an error occurs while requesting
+        //
+        // Additionally, a method of JsonObjectRequest - getHeaders() - has been overridden to provide
+        // the request headers (Content Type & Authorization token)
 
-            // Set Loading Indicator
-            loadingIndicator.setVisibility(View.VISIBLE);
-            loadingIndicator.smoothToShow();
-        }
+        jsonObjectRequest = new JsonObjectRequest(
+                Request.Method.GET,
+                "https://favqs.com/api/quotes/" + generateRandomNumber().toString(),
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        Log.i(TAG, response.toString());
 
-        @Override
-        protected void onPostExecute(String jsonResponse) {
-            super.onPostExecute(jsonResponse);
+                        TextView quoteTextView = (TextView) findViewById(R.id.quote_text_view);
+                        TextView authorTextView = (TextView) findViewById(R.id.author_text_view);
+                        TextView tagsTextView = (TextView) findViewById(R.id.tags_text_view);
+                        ImageButton shareImage = (ImageButton) findViewById(R.id.share_image_view);
+                        AVLoadingIndicatorView loadingIndicator = (AVLoadingIndicatorView) findViewById(R.id.loading_indicator_view);
 
-            try {
-                JSONObject jsonObject = new JSONObject(jsonResponse);
-                String quoteText = jsonObject.getString("body");
-                String authorText = jsonObject.getString("author");
-                JSONArray tagText = jsonObject.getJSONArray("tags");
+                        try {
+                            String quoteText = response.getString("body");
+                            String authorText = response.getString("author");
+                            JSONArray tagText = response.getJSONArray("tags");
 
-                StringBuilder tags = new StringBuilder("");
-                for(int i = 0; i < tagText.length(); i++) {
-                    tags.append(tagText.get(i));
-                    if(i != tagText.length() - 1) {
-                        tags.append(", ");
+                            StringBuilder tags = new StringBuilder("");
+                            for (int i = 0; i < tagText.length(); i++) {
+                                tags.append(tagText.get(i));
+                                if (i != tagText.length() - 1) {
+                                    tags.append(", ");
+                                }
+                            }
+
+                            // Set Obtained details
+                            quoteTextView.setText(quoteText);
+                            authorTextView.setText(authorText);
+                            tagsTextView.setText(tags.toString());
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+
+                        // Hide the loading indicator, it's done
+                        loadingIndicator.hide();
+                        loadingIndicator.setVisibility(View.GONE);
+
+                        // Bring 'em views back
+                        quoteTextView.setVisibility(View.VISIBLE);
+                        authorTextView.setVisibility(View.VISIBLE);
+                        tagsTextView.setVisibility(View.VISIBLE);
+                        shareImage.setVisibility(View.VISIBLE);
+
+                        // We're open for requests :D
+                        isRequested = false;
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.e(TAG, error.toString());
                     }
                 }
-
-                // Set Obtained details
-                quoteTextView.setText(quoteText);
-                authorTextView.setText(authorText);
-                tagsTextView.setText(tags.toString());
-
-            } catch(Exception e) {
-                e.printStackTrace();
+        ) {
+            // Optional method to pass Request Headers
+            @Override
+            public Map<String, String> getHeaders() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("Content-Type", "application/json");
+                params.put("Authorization", "Token token=\"" + APP_KEY_QUOTE + "\"");
+                return params;
             }
+        };
 
-            // Hide the loading indicator, it's done
-            loadingIndicator.hide();
-            loadingIndicator.setVisibility(View.GONE);
+        // Add the request to Volley's Request Queue
+        // RequestQueue executes any number of requests, asynchronously
+        requestQueue.add(jsonObjectRequest);
 
-            // Bring 'em views back
-            quoteTextView.setVisibility(View.VISIBLE);
-            authorTextView.setVisibility(View.VISIBLE);
-            tagsTextView.setVisibility(View.VISIBLE);
-            shareImage.setVisibility(View.VISIBLE);
-
-            // We're open for requests :D
-            isRequested = false;
-        }
-
-        @Override
-        protected String doInBackground(String... strings) {
-            // Object to execute HTTPS methods
-            HttpsURLConnection connection = null;
-            // Buffer to read the Stream
-            BufferedReader reader = null;
-
-            StringBuilder stringBuilder;
-
-            try {
-                // Get the URL passed
-                URL url = new URL(strings[0]);
-
-                // Create a HTTPS Connector Object
-                connection = (HttpsURLConnection) url.openConnection();
-                // Connect with these 'Header' parameters
-                connection.setRequestProperty("Content-Type", "application/json");
-                connection.setRequestProperty("Authorization", "Token token=\"" + APP_KEY_QUOTE + "\"");
-
-                // Get Input Stream from API
-                InputStream stream = connection.getInputStream();
-
-                // Buffer to read the above InputStream
-                reader = new BufferedReader(new InputStreamReader(stream));
-
-                // Buffer which would be returned back as a Pretty JSON String
-                stringBuilder = new StringBuilder("");
-
-                // Variable to read each line of Stream
-                String line;
-
-                // while the stream isn't completely read
-                while ((line = reader.readLine()) != null) {
-                    // Append every line to Buffer, and add a NewLine
-                    stringBuilder.append(line);
-                    stringBuilder.append("\n");
-                    // Log the same
-                    Log.d(TAG, "QuoteJSONResponse > " + line);
-                }
-
-                return stringBuilder.toString();
-            }
-            // Possible Unhandled Exception (Runtime)
-            catch (MalformedURLException m) {
-                m.printStackTrace();
-            }
-            // Possible Unhandled Exception (Runtime)
-            catch (IOException i) {
-                i.printStackTrace();
-            }
-            finally {
-                if (connection != null)
-                    connection.disconnect();
-                try {
-                    if (reader != null)
-                        reader.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            return null;
-        }
     }
 
+    public class SwipeListener extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+
+            RelativeLayout rootLayout = (RelativeLayout) findViewById(R.id.root_layout);
+
+            // TODO: Accept a Request only after receiving a considerable fling length
+            if (!isRequested) {
+                generateStuffs(rootLayout);
+                Log.d(TAG, "Received Gesture, Fetching Quote");
+                isRequested = true;
+            } else {
+                Log.d(TAG, "Request is being processed");
+            }
+
+            return super.onFling(e1, e2, velocityX, velocityY);
+        }
+    }
 }
