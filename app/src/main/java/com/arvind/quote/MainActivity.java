@@ -37,7 +37,7 @@ import static com.arvind.quote.Auth.APP_KEY_QUOTE;
 public class MainActivity extends AppCompatActivity {
 
     public static boolean isRequested = false;
-    public static String TAG = "QuoteApp";
+    public static String TAG = "GibQuote";
     public RequestQueue requestQueue;
     public JsonObjectRequest jsonObjectRequest;
     private GestureDetector mGestureDetector;
