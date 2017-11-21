@@ -6,7 +6,8 @@
     android:layout_height="wrap_content"
     app:cardCornerRadius="@dimen/cardview_default_radius"
     app:cardElevation="@dimen/cardview_default_elevation"
-    app:cardUseCompatPadding="true">
+    app:cardUseCompatPadding="true"
+    android:layout_marginBottom="8dp">
 
     <RelativeLayout
         android:id="@+id/quote_view"
