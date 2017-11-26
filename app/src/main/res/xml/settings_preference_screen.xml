@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.preference.PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <android.support.v7.preference.PreferenceCategory
+        android:title="Look and Feel">
+
+        <android.support.v7.preference.ListPreference
+            android:title="Theme"
+            android:key="THEME_KEY"/>
+
+        <android.support.v7.preference.ListPreference
+            android:title="Choose Primary color"
+            android:key="PRIMARY_KEY"/>
+
+        <android.support.v7.preference.ListPreference
+            android:title="Choose Accent color"
+            android:key="ACCENT_KEY"/>
+
+    </android.support.v7.preference.PreferenceCategory>
+</android.support.v7.preference.PreferenceScreen>

@@ -5,7 +5,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.arvind.quote.Fragments.GibQuoteFragment;
 
 import java.util.List;
 
@@ -19,6 +22,7 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
         final TextView quoteTextView;
         final TextView authorTextView;
         final TextView tagsTextView;
+        final ImageView starQuoteView;
 
         QuoteViewHolder(View itemView) {
             super(itemView);
@@ -27,17 +31,27 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
             authorTextView = itemView.findViewById(R.id.author_text_view);
             tagsTextView = itemView.findViewById(R.id.tags_text_view);
 
+            starQuoteView = itemView.findViewById(R.id.star_quote_button);
+
+            starQuoteView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    new GibQuoteFragment().addToFavQuoteList(context, quoteList.get(getAdapterPosition()));
+                    starQuoteView.setImageResource(R.drawable.star_enabled);
+                }
+            });
+
             itemView.setOnLongClickListener(this);
         }
 
         @Override
         public boolean onLongClick(View v) {
-            new MainActivity().shareQuote(context, quoteList.get(getAdapterPosition()));
+            new GibQuoteFragment().shareQuote(context, quoteList.get(getAdapterPosition()));
             return true;
         }
     }
 
-    QuoteAdapter(Context context, List<QuoteData> quoteDetails) {
+    public QuoteAdapter(Context context, List<QuoteData> quoteDetails) {
         this.context = context;
         this.quoteList = quoteDetails;
     }
