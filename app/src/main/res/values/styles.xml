@@ -1,17 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+
+    <style name="AppTheme" parent="@style/PreferenceFixTheme.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="preferenceTheme">@style/Preference.Material</item>
+        <item name="drawerArrowStyle">@style/AppTheme.DrawerArrowStyle</item>
+        <item name="toolbarStyle">@style/AppTheme.Toolbar</item>
+        <item name="about_libraries_window_background">@color/about_libraries_window_background</item>
+        <item name="about_libraries_card">@color/about_libraries_card</item>
+        <item name="about_libraries_title_openSource">@color/about_libraries_title_openSource</item>
+        <item name="about_libraries_text_openSource">@color/about_libraries_text_openSource</item>
+        <item name="about_libraries_special_button_openSource">@color/about_libraries_special_button_openSource</item>
+        <item name="about_libraries_dividerDark_openSource">@color/about_libraries_dividerDark_openSource</item>
+        <item name="about_libraries_dividerLight_openSource">@color/about_libraries_dividerLight_openSource</item>
+
     </style>
 
-    <style name="AnotherAppTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="AnotherAppTheme" parent="@style/PreferenceFixTheme.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="preferenceTheme">@style/Preference.Material</item>
+        <item name="drawerArrowStyle">@style/AppTheme.DrawerArrowStyle</item>
+        <item name="toolbarStyle">@style/AppTheme.Toolbar</item>
+        <item name="about_libraries_card">@color/about_libraries_card_dark</item>
+        <item name="about_libraries_window_background">@color/about_libraries_window_background_dark</item>
+        <item name="about_libraries_title_openSource">@color/about_libraries_title_openSource_dark</item>
+        <item name="about_libraries_text_openSource">@color/about_libraries_text_openSource_dark</item>
+        <item name="about_libraries_special_button_openSource">@color/about_libraries_special_button_openSource_dark</item>
+        <item name="about_libraries_dividerDark_openSource">@color/about_libraries_dividerDark_openSource_dark</item>
+        <item name="about_libraries_dividerLight_openSource">@color/about_libraries_dividerLight_openSource_dark</item>
+    </style>
+
+    <style name="actionBarFontAppearance">
+        <item name="fontFamily">@font/comfortaa_bold</item>
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="aboutFontAppearance">
+        <item name="fontFamily">@font/comfortaa_bold</item>
+        <item name="android:textSize">32sp</item>
+    </style>
+
+    <style name="tapTargetFontAppearance">
+        <item name="fontFamily">@font/comfortaa_bold</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="AppTheme.DrawerArrowStyle" parent="@style/Widget.AppCompat.DrawerArrowToggle">
+        <item name="spinBars">true</item>
+        <item name="color">@android:color/white</item>
+    </style>
+
+    <style name="AppTheme.Toolbar" parent="@style/Widget.AppCompat.Toolbar">
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="android:textColor">@android:color/white</item>
+        <item name="color">@android:color/white</item>
+        <item name="titleTextAppearance">@style/AppTheme.Toolbar.TextAppearance</item>
+        <item name="subtitleTextAppearance">@style/Theme.MyTheme.Toolbar.TextAppearance.Subtitle
+        </item>
+    </style>
+
+    <style name="AppTheme.Toolbar.TextAppearance" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="Theme.MyTheme.Toolbar.TextAppearance.Subtitle" parent="@style/TextAppearance.Widget.AppCompat.Toolbar.Subtitle">
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
 </resources>

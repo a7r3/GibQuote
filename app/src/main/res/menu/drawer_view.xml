@@ -11,9 +11,9 @@
             android:title="Favorite Quotes"
             android:icon="@android:drawable/btn_star_big_off"/>
         <item
-            android:id="@+id/theme_selector_item"
-            android:title="Look and Feel"
-            android:icon="@android:drawable/ic_menu_view"/>
+            android:id="@+id/settings_item"
+            android:title="Settings"
+            android:icon="@android:drawable/ic_menu_edit"/>
         <item
             android:id="@+id/about_item"
             android:title="About"

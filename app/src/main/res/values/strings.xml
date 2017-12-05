@@ -2,4 +2,14 @@
     <string name="app_name">GibQuote</string>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <string-array name="theme_strings">
+        <item>"Light"</item>
+        <item>"Dark"</item>
+        <item>"Translucent"</item>
+    </string-array>
+    <string-array name="theme_values">
+        <item >light</item>
+        <item >dark</item>
+        <item >translucent</item>
+    </string-array>
 </resources>

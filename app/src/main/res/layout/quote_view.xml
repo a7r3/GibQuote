@@ -1,64 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<RelativeLayout android:id="@+id/quote_view"
+<!-- Quote View Skeleton for RecyclerView -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/quote_view"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:clickable="true"
-    android:focusable="true"
     android:background="?selectableItemBackground"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:focusable="true">
 
-        <TextView
-            android:id="@+id/quote_text_view"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="NULL Life for the Win"
-            android:textSize="24sp" />
+    <ImageView
+        android:id="@+id/star_quote_button"
+        android:layout_width="36dp"
+        android:layout_height="36dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/star"
+        android:src="@drawable/star_off"
+        android:padding="8dp"/>
 
-        <TextView
-            android:id="@+id/author_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:layout_below="@id/quote_text_view"
-            android:paddingTop="8dp"
-            android:paddingLeft="8dp"
-            android:paddingBottom="8dp"
-            android:paddingRight="16dp"
-            android:text="- By Some Intelligent Guy"
-            android:textSize="16sp"
-            android:textStyle="italic|bold" />
-
-        <TextView
-            android:id="@+id/tags_text_view"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/author_text_view"
-            android:layout_alignParentRight="true"
-            android:paddingBottom="8dp"
-            android:paddingRight="16dp"
-            android:text="Tags : four, zero, four"
-            android:textColor="#9E9E9E"
-            android:textStyle="bold" />
-
-
-        <ImageView
-            android:id="@+id/star_quote_button"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/star_disabled"
-            android:layout_marginTop="16dp"
-            android:layout_marginLeft="16dp"
-            android:layout_alignParentLeft="true"
-            android:layout_below="@id/quote_text_view" />
+    <!--<android.support.v7.widget.RecyclerView-->
+        <!--android:padding="8dp"-->
+        <!--android:id="@+id/tags_recycler_view"-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_toRightOf="@id/star_quote_button"-->
+        <!--android:orientation="horizontal"-->
+        <!--android:overScrollMode="never" />-->
 
     <TextView
+        android:id="@+id/quote_text_view"
         android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_below="@id/tags_text_view"
-        android:background="@android:color/darker_gray"/>
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/star_quote_button"
+        android:paddingTop="16dp"
+        android:paddingRight="8dp"
+        android:paddingBottom="8dp"
+        android:text="NULL Life for the Win"
+        android:textSize="18sp" />
+
+    <!--android:layout_below="@id/tags_recycler_view"-->
+
+    <TextView
+        android:id="@+id/author_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/quote_text_view"
+        android:padding="16dp"
+        android:text="- By Some Intelligent Guy"
+        android:textSize="16sp"
+        android:textStyle="italic|bold" />
 
 </RelativeLayout>
 

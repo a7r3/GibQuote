@@ -1,4 +1,4 @@
-package com.arvind.quote.Fragments;
+package com.arvind.quote.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.arvind.quote.MainActivity;
 import com.arvind.quote.R;
 
 public class FavQuoteFragment extends Fragment {
@@ -14,13 +15,14 @@ public class FavQuoteFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.activity_main, container, false);
+        View view = inflater.inflate(R.layout.fav_quote_fragment, container, false);
 
+        MainActivity.setActionBarTitle("FavQuotes");
 //        // RecyclerView Object
 //        RecyclerView quoteRecyclerView = view.findViewById(R.id.quote_list_view);
 //
 //        // RecyclerView's Adapter - Detects change on DataSet
-//        ArrayList<QuoteData> quoteArrayList = new ArrayList<>();
+//        ArrayList<Quote> quoteArrayList = new ArrayList<>();
 //        QuoteAdapter quoteAdapter = new QuoteAdapter(getContext(), quoteArrayList);
 //
 //        // Allows Recycler to perform actions on the Layout
