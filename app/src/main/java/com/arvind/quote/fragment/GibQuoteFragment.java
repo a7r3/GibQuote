@@ -195,12 +195,12 @@ public class GibQuoteFragment extends Fragment {
         });
 
         // If no quotes are present
-        if (sharedPreferences.getBoolean("IS_USER_INTRODUCED", false)) {
-            showIntroTapTargets(view);
-            Log.i(TAG, "Let's Introduce ourselves");
-        }
-        else
+        if (sharedPreferences.getBoolean("IS_USER_INTRODUCED", false))
             Log.i(TAG, "User knows me already!");
+        else {
+            Log.i(TAG, "Let's Introduce ourselves");
+            showIntroTapTargets(view);
+        }
 
         Spinner providerSpinner = view.findViewById(R.id.provider_select);
 
@@ -384,7 +384,7 @@ public class GibQuoteFragment extends Fragment {
                 .drawShadow(true)
                 .cancelable(true)
                 .transparentTarget(true)
-                .targetRadius(90);
+                .targetRadius(110);
 
         TapTarget gibQuoteTapTarget = TapTarget.forView(view.findViewById(R.id.gib_quote_fab),
                 "One last step",
