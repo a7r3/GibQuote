@@ -131,11 +131,11 @@ public class GibQuoteFragment extends Fragment {
         } else {
             Log.v(TAG, "DAM SON :(");
             Snackbar.make(
-                    view.findViewById(R.id.frame_layout),
+                    getActivity().findViewById(R.id.frame_layout),
                     "No Internet Connection",
                     Snackbar.LENGTH_LONG).show();
             quoteArrayList.add(new Quote("Always pay your Internet Bills on-time",
-                    "Yours truly,\nI_Iz_N00b"));
+                    "Internet Service Provider"));
             quoteAdapter.notifyItemInserted(quoteArrayList.size() - 1);
             quoteRecyclerView.smoothScrollToPosition(quoteArrayList.size() - 1);
             gibQuoteFab.setEnabled(false);
