@@ -220,7 +220,7 @@ public class GibQuoteFragment extends Fragment {
         ArrayAdapter<String> providerArrayAdapter = new ArrayAdapter<>(
                 getContext(),
                 R.layout.support_simple_spinner_dropdown_item,
-                new String[]{ "Forismatic", "Talaikis", "FavQs"}
+                new String[]{ "Forismatic", "Talaikis", "Storm", "FavQs"}
         );
 
         providerArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
@@ -245,12 +245,17 @@ public class GibQuoteFragment extends Fragment {
                 quoteTextVarName = "body";
                 quoteAuthorVarName = "author";
                 break;
-            case "Forismatic":
+            case "Forismatic": default:
                 quoteUrl = "http://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json&key=";
                 quoteTextVarName = "quoteText";
                 quoteAuthorVarName = "quoteAuthor";
                 break;
-            case "Talaikis": default:
+            case "Storm":
+                quoteUrl = "http://quotes.stormconsultancy.co.uk/random.json";
+                quoteTextVarName = "quote";
+                quoteAuthorVarName = "author";
+                break;
+            case "Talaikis":
                 quoteUrl = "https://talaikis.com/api/quotes/random/";
                 quoteTextVarName = "quote";
                 quoteAuthorVarName = "author";
@@ -273,7 +278,7 @@ public class GibQuoteFragment extends Fragment {
 
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 Request.Method.GET,
-                !quoteProvider.equals("Talaikis")
+                !quoteProvider.matches("Storm|Talaikis")
                         ? quoteUrl + generateRandomNumber().toString()
                         : quoteUrl,
                 null,

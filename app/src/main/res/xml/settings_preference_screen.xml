@@ -13,15 +13,23 @@
             android:defaultValue="0"
             android:summary="Select the base theme"/>
 
-        <ListPreference
+        <ColorPickerPreference
+            android:defaultValue="@color/colorPrimary"
+            android:dialogTitle="@string/color_picker_default_title"
             android:key="PRIMARY_KEY"
-            android:title="Primary color"
-            android:summary="Select the primary color"/>
+            android:persistent="false"
+            android:summary="Select the primary color"
+            android:title="Primary Color"
+            app:pref_size="small" />
 
-        <ListPreference
+        <ColorPickerPreference
+            android:defaultValue="@color/colorAccent"
+            android:dialogTitle="@string/color_picker_default_title"
             android:key="ACCENT_KEY"
+            android:persistent="false"
+            android:summary="Select the secondary color"
             android:title="Accent color"
-            android:summary="Select the secondary color (Major color)"/>
+            app:pref_size="small" />
 
     </PreferenceCategory>
 </PreferenceScreen>

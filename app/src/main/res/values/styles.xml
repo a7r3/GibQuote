@@ -14,7 +14,6 @@
         <item name="about_libraries_special_button_openSource">@color/about_libraries_special_button_openSource</item>
         <item name="about_libraries_dividerDark_openSource">@color/about_libraries_dividerDark_openSource</item>
         <item name="about_libraries_dividerLight_openSource">@color/about_libraries_dividerLight_openSource</item>
-
     </style>
 
     <style name="AnotherAppTheme" parent="@style/PreferenceFixTheme.NoActionBar">

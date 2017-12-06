@@ -26,6 +26,7 @@ import com.mikepenz.aboutlibraries.LibsBuilder;
 
 public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
 
+    // Who am I ?
     private final String TAG = "MainActivity";
 
     // ActionBar for the App
@@ -44,12 +45,17 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     // Theme ID - from styles.xml
     private int themeId = R.style.AppTheme;
 
+    // Required by Fragments to ...
     // Set ActionBar's title
     public static void setActionBarTitle(String title) {
         if (actionBar != null) {
             actionBar.setTitle(title);
         }
     }
+
+    // Keep track of previous selected Drawer Item
+    // to make sure the same fragment isn't instantiated again
+    private MenuItem previousItem;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -58,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         String themeKey = sharedPreferences.getString("THEME_KEY", "light");
+        int cardViewBackGround = R.color.colorLightCardView;
 
         Log.d(TAG, "Theme: " + themeKey);
         switch (themeKey) {
@@ -66,9 +73,11 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 break;
             case "dark":
                 themeId = R.style.AnotherAppTheme;
+                cardViewBackGround = R.color.colorDarkCardView;
                 break;
             case "translucent": // TODO: TRANSLUCENT
                 themeId = R.style.AppTheme;
+                cardViewBackGround = R.color.colorLightCardView;
                 break;
         }
 
@@ -78,19 +87,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         setContentView(R.layout.activity_main);
 
         NavigationView navigationView = findViewById(R.id.nav_bar_view);
-
-        int cardViewBackGround = R.color.cardview_light_background;
-        switch (themeKey) {
-            case "light":
-                cardViewBackGround = R.color.cardview_light_background;
-                break;
-            case "dark":
-                cardViewBackGround = R.color.cardview_dark_background;
-                break;
-            case "translucent": // TODO: TRANSLUCENT
-                cardViewBackGround = R.color.cardview_light_background;
-                break;
-        }
 
         // Set background of the Navigation drawer view
         navigationView.setBackgroundColor(getResources().getColor(cardViewBackGround));
@@ -127,10 +123,20 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switchFragment(item);
+                // If the same item isn't selected, then switch fragment
+                if(previousItem != item) {
+                    switchFragment(item);
+                    previousItem = item;
+                }
+                // Close drawers present in this DrawerLayout
+                drawerLayout.closeDrawers();
                 return true;
             }
         });
+
+        // Since GibQuoteFragment is shown by default
+        // Set it as the selected item in NavigationView (Drawer)
+        navigationView.getMenu().getItem(0).setChecked(true);
     }
 
     public void switchFragment(MenuItem item) {
@@ -147,7 +153,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 setActionBarTitle("About");
                 // Creating AboutLibraries' Fragment :D
                 fragment = new LibsBuilder()
-                        .withAboutAppName("GibQuote")
+                        .withAboutAppName(getResources().getString(R.string.app_name))
                         .withAboutDescription("Random project to fetch random quotes from random providers")
                         .withAboutIconShown(true)
                         .withVersionShown(true)
@@ -165,15 +171,12 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             Log.d(TAG, "Creating new Fragment Instance");
             getSupportFragmentManager()
                     .beginTransaction()
-                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                    .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                     .replace(R.id.frame_layout, fragment, fragment.getClass().getCanonicalName())
                     .commit();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-        // Close drawers present in this DrawerLayout
-        drawerLayout.closeDrawers();
     }
 
     @Override
@@ -186,7 +189,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
         getSupportFragmentManager()
                 .beginTransaction()
-                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN)
+                .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .replace(R.id.frame_layout, fragment, preferenceScreen.getKey())
                 .addToBackStack(preferenceScreen.getKey())
                 .commitAllowingStateLoss();

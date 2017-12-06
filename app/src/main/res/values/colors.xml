@@ -6,4 +6,6 @@
     <color name="colorTag">#E57373</color>
     <color name="colorFav">#C5E1A5</color>
     <color name="colorGray">#e5e5e5</color>
+    <color name="colorLightCardView">@color/cardview_light_background</color>
+    <color name="colorDarkCardView">@color/cardview_dark_background</color>
 </resources>
