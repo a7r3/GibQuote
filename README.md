@@ -17,7 +17,8 @@ Application Icon used from <b>[FlatIcon](https://flaticon.com)
 
 * Share Quote by long-pressing it
 
-* (TODO) Save Favorite Quotes
+* Save Favorite Quotes (SQLite)
+  - Double Tap a quote to delete it (after additional prompt)
 
 * (TODO) Show Quotes / QoTD at a particular time (Notification)
 

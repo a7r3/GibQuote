@@ -89,8 +89,9 @@ public class FavQuoteFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        snackbar.dismiss();
+        if(snackbar != null)
+            snackbar.dismiss();
         super.onDestroyView();
-        Log.i(TAG, "FavQuoteFragment onDestroyView()");
+        Log.i(TAG, "onDestroyView called");
     }
 }
