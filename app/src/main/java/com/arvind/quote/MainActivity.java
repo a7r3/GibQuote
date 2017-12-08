@@ -1,5 +1,7 @@
 package com.arvind.quote;
 
+import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -18,7 +20,9 @@ import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
+import com.arvind.quote.adapter.Quote;
 import com.arvind.quote.fragment.FavQuoteFragment;
 import com.arvind.quote.fragment.GibQuoteFragment;
 import com.arvind.quote.fragment.SettingsFragment;
@@ -26,12 +30,10 @@ import com.mikepenz.aboutlibraries.LibsBuilder;
 
 public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
 
-    // Who am I ?
-    private final String TAG = "MainActivity";
-
     // ActionBar for the App
     private static ActionBar actionBar;
-
+    // Who am I ?
+    private final String TAG = "MainActivity";
     // Layout under which fragments would reside
     private DrawerLayout drawerLayout;
 
@@ -44,6 +46,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
     // Theme ID - from styles.xml
     private int themeId = R.style.AppTheme;
+    // Keep track of previous selected Drawer Item
+    // to make sure the same fragment isn't instantiated again
+    private MenuItem previousItem;
 
     // Required by Fragments to ...
     // Set ActionBar's title
@@ -52,10 +57,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             actionBar.setTitle(title);
         }
     }
-
-    // Keep track of previous selected Drawer Item
-    // to make sure the same fragment isn't instantiated again
-    private MenuItem previousItem;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -124,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 // If the same item isn't selected, then switch fragment
-                if(previousItem != item) {
+                if (previousItem != item) {
                     switchFragment(item);
                     previousItem = item;
                 }
@@ -208,5 +209,23 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         super.onConfigurationChanged(newConfig);
         drawerToggle.onConfigurationChanged(newConfig);
     }
+
+    /* Allows the user to share currently displayed quote */
+    public void shareQuote(Context context, Quote quote) {
+        Log.d(TAG, "Creating Share Intent");
+        // My intention is to send (throw) a piece of Text (ball)
+        Intent quoteIntent = new Intent(Intent.ACTION_SEND);
+        // Piece of Text (the Ball)
+        String quoteMessage = quote.getQuoteText() + "\n\n-- " + quote.getAuthorText();
+        // Specify the Text to be thrown
+        quoteIntent.putExtra(Intent.EXTRA_TEXT, quoteMessage);
+        // Specify the MIME type of the object to be thrown
+        quoteIntent.setType("text/plain");
+        // Send an Acknowledgement
+        Toast.makeText(context, "Select an App to GibQuote", Toast.LENGTH_SHORT).show();
+        // Throw the Ball!
+        context.startActivity(Intent.createChooser(quoteIntent, "Share this Quote"));
+    }
+
 
 }

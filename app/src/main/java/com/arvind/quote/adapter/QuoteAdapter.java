@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.arvind.quote.MainActivity;
 import com.arvind.quote.R;
 import com.arvind.quote.fragment.GibQuoteFragment;
 
@@ -81,7 +82,7 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
 
         @Override
         public boolean onLongClick(View v) {
-            new GibQuoteFragment().shareQuote(context, quoteList.get(getAdapterPosition()));
+            new MainActivity().shareQuote(context, quoteList.get(getAdapterPosition()));
             return true;
         }
     }

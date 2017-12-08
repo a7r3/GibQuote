@@ -2,7 +2,6 @@ package com.arvind.quote.fragment;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Typeface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
@@ -16,14 +15,16 @@ import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompatDividers;
  */
 public class SettingsFragment extends PreferenceFragmentCompatDividers {
 
+    private SharedPreferences sharedPreferences;
+
+    // Listen for changes in a SharedPreference
     private SharedPreferences.OnSharedPreferenceChangeListener listener;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         MainActivity.setActionBarTitle("Settings");
-
-        SharedPreferences sharedPreferences = getPreferenceManager().getSharedPreferences();
+        sharedPreferences = getPreferenceManager().getSharedPreferences();
 
         listener = new SharedPreferences.OnSharedPreferenceChangeListener() {
             @Override
@@ -34,6 +35,9 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers {
                                 "Restarting Application",
                                 Snackbar.LENGTH_LONG)
                                 .show();
+
+                        // Sleep for a second or maybe two
+                        // Create a restart intent
                         new Thread(new Runnable() {
                             @Override
                             public void run() {
@@ -62,7 +66,8 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers {
             }
         };
 
-        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(listener);
+        // Register the listener (so that it could do its job)
+        sharedPreferences.registerOnSharedPreferenceChangeListener(listener);
 
     }
 
@@ -74,7 +79,8 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers {
     @Override
     public void onDestroyView() {
         super.onDestroyView();
-        getPreferenceScreen().getSharedPreferences().unregisterOnSharedPreferenceChangeListener(listener);
+        // Your job's done
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(listener);
     }
 
 }

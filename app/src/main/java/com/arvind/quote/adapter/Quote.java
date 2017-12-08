@@ -3,8 +3,6 @@ package com.arvind.quote.adapter;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.util.ArrayList;
-
 public class Quote implements Parcelable {
     // Class which holds the Data required by RecyclerView's ViewHolder
     // Class' object is given to the ViewHolder

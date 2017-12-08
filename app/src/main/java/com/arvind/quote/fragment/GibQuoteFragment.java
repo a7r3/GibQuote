@@ -1,8 +1,8 @@
 package com.arvind.quote.fragment;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.DatabaseUtils;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -36,6 +36,7 @@ import com.arvind.quote.MainActivity;
 import com.arvind.quote.R;
 import com.arvind.quote.adapter.Quote;
 import com.arvind.quote.adapter.QuoteAdapter;
+import com.arvind.quote.database.DatabaseHelper;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
 
@@ -50,8 +51,8 @@ import static com.arvind.quote.Auth.APP_KEY_QUOTE;
 
 public class GibQuoteFragment extends Fragment {
 
+    public int favQuoteId = 0;
     private ArrayList<Quote> quoteArrayList = new ArrayList<>();
-    private ArrayList<Quote> favQuoteArrayList = new ArrayList<>();
     private QuoteAdapter quoteAdapter;
     private RecyclerView quoteRecyclerView;
     private RequestQueue requestQueue;
@@ -62,13 +63,16 @@ public class GibQuoteFragment extends Fragment {
     private String quoteAuthorVarName;
     private SharedPreferences sharedPreferences;
 
+    // List of QuoteProviders
+    private String[] quoteProviders = new String[]{"Forismatic", "Talaikis", "Storm", "FavQs"};
+
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
 
-        if(savedInstanceState != null) {
+        if (savedInstanceState != null) {
             Log.d(TAG, "Restoring Instance state");
             quoteArrayList = savedInstanceState.getParcelableArrayList("quoteData");
         }
@@ -202,6 +206,7 @@ public class GibQuoteFragment extends Fragment {
             showIntroTapTargets(view);
         }
 
+        // Provides user to select an entry from a list of dropdown entries
         Spinner providerSpinner = view.findViewById(R.id.provider_select);
 
         providerSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -217,21 +222,25 @@ public class GibQuoteFragment extends Fragment {
             }
         });
 
+        // Adapter which would provide the Dropdown elements
+        // And listen for changes in respective elements (select events)
         ArrayAdapter<String> providerArrayAdapter = new ArrayAdapter<>(
                 getContext(),
                 R.layout.support_simple_spinner_dropdown_item,
-                new String[]{ "Forismatic", "Talaikis", "Storm", "FavQs"}
+                quoteProviders
         );
 
         providerArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-
         providerSpinner.setAdapter(providerArrayAdapter);
 
         return view;
     }
 
     public void addToFavQuoteList(Context context, Quote quoteData) {
-        favQuoteArrayList.add(quoteData);
+        DatabaseHelper dbHalp = DatabaseHelper.getInstance(context);
+        int id = (int) dbHalp.getRowCount();
+        Log.d(TAG, "Inserting FavQuote " + id);
+        dbHalp.addFavQuote(id, quoteData);
         Toast.makeText(context, "Added to Favorites", Toast.LENGTH_SHORT).show();
     }
 
@@ -239,13 +248,14 @@ public class GibQuoteFragment extends Fragment {
         Log.d(TAG, "QuoteProvider: " + quoteProvider);
 
         // Randomness
-        switch(quoteProvider) {
+        switch (quoteProvider) {
             case "FavQs":
                 quoteUrl = "https://favqs.com/api/quotes/";
                 quoteTextVarName = "body";
                 quoteAuthorVarName = "author";
                 break;
-            case "Forismatic": default:
+            case "Forismatic":
+            default:
                 quoteUrl = "http://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json&key=";
                 quoteTextVarName = "quoteText";
                 quoteAuthorVarName = "quoteAuthor";
@@ -263,6 +273,7 @@ public class GibQuoteFragment extends Fragment {
         }
 
     }
+
     private void generateStuffs() {
 
         // Creating a new GET JSONObject request
@@ -330,23 +341,6 @@ public class GibQuoteFragment extends Fragment {
         // But, some quotes are 404, dunno why
         int MAX = 62024;
         return new Random().nextInt((MAX - MIN) + 1) + MIN;
-    }
-
-    /* Allows the user to share currently displayed quote */
-    public void shareQuote(Context context, Quote quote) {
-        Log.d(TAG, "Creating Share Intent");
-        // My intention is to send (throw) a piece of Text (ball)
-        Intent quoteIntent = new Intent(Intent.ACTION_SEND);
-        // Piece of Text (the Ball)
-        String quoteMessage = quote.getQuoteText() + "\n\n-- " + quote.getAuthorText();
-        // Specify the Text to be thrown
-        quoteIntent.putExtra(Intent.EXTRA_TEXT, quoteMessage);
-        // Specify the MIME type of the object to be thrown
-        quoteIntent.setType("text/plain");
-        // Send an Acknowledgement
-        Toast.makeText(context, "Select an App to GibQuote", Toast.LENGTH_SHORT).show();
-        // Throw the Ball!
-        context.startActivity(Intent.createChooser(quoteIntent, "Share this Quote"));
     }
 
     private void parseQuote(JSONObject response) {
@@ -422,7 +416,7 @@ public class GibQuoteFragment extends Fragment {
 
                     @Override
                     public void onSequenceStep(TapTarget lastTarget, boolean targetClicked) {
-                        if(lastTarget.equals(providerTapTarget) && targetClicked) {
+                        if (lastTarget.equals(providerTapTarget) && targetClicked) {
 
                         }
                     }
@@ -433,6 +427,7 @@ public class GibQuoteFragment extends Fragment {
                     }
                 }).start();
     }
+
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
