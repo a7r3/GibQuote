@@ -12,46 +12,45 @@ import com.arvind.quote.adapter.Quote;
 
 import java.util.ArrayList;
 
-public class DatabaseHelper extends SQLiteOpenHelper {
+public class FavDatabaseHelper extends SQLiteOpenHelper {
 
     // Increment this if you've performed any changes
     // to the database (for eg. Changing column info)
     // Incrementing it would drop older version's DB
     // See onUpgrade() for implementation
-    private static int DATABASE_VERSION = 2;
+    private static int DATABASE_VERSION = 1;
     // Give the DB a good name
-    private static String DATABASE_NAME = "QuoteDB";
+    private static String DATABASE_NAME = "FavQuote";
     // Static Instance of Database Helper
-    private static DatabaseHelper databaseHelperInstance;
-    private String TAG = "DatabaseHelper";
+    private static FavDatabaseHelper favDatabaseHelperInstance;
+    private String TAG = "FavDatabaseHelper";
     // Table name
-    private String QUOTE_TABLE = "quotedata";
+    private String QUOTE_TABLE = "quotes";
+
     // Table columns
-    // Primary Key (ID) (Row-Identifier)
     private String ID_KEY = "id";
-    // Rest of the columns
     private String QUOTE_KEY = "quote";
     private String AUTHOR_KEY = "author";
 
-    private DatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
+    private FavDatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);
     }
 
-    // Make sure that we get a single DatabaseHelper Instance throughout
+    // Make sure that we get a single FavDatabaseHelper Instance throughout
     // the Application (Singleton Instance they said)
-    public static synchronized DatabaseHelper getInstance(Context context) {
+    public static synchronized FavDatabaseHelper getInstance(Context context) {
         // Use the application context, which will ensure that you
         // don't accidentally leak an Activity's context.
         // See this article for more information: http://bit.ly/6LRzfx
-        if (databaseHelperInstance == null) {
-            databaseHelperInstance = new DatabaseHelper(
+        if (favDatabaseHelperInstance == null) {
+            favDatabaseHelperInstance = new FavDatabaseHelper(
                     context.getApplicationContext(),
                     DATABASE_NAME,
                     null,
                     DATABASE_VERSION
             );
         }
-        return databaseHelperInstance;
+        return favDatabaseHelperInstance;
     }
 
     // Creates a DB only if it does not exist in the Storage
@@ -75,7 +74,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // i1 -> newVersion
         if (i != i1) {
             // Simplest implementation is to drop all old tables and recreate them
-            sqLiteDatabase.execSQL("DROP TABLE IF EXISTS " + QUOTE_TABLE);
             onCreate(sqLiteDatabase);
         }
     }
@@ -161,4 +159,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public long getRowCount() {
         return DatabaseUtils.queryNumEntries(getReadableDatabase(), QUOTE_TABLE);
     }
+
 }

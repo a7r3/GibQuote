@@ -10,9 +10,7 @@ import com.arvind.quote.MainActivity;
 import com.arvind.quote.R;
 import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompatDividers;
 
-/**
- * A placeholder fragment containing a simple view.
- */
+// A placeholder fragment containing a simple view.
 public class SettingsFragment extends PreferenceFragmentCompatDividers {
 
     private SharedPreferences sharedPreferences;
@@ -58,9 +56,7 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers {
                             }
                         }).start();
                         break;
-                    case "PRIMARY_KEY": // TODO
-                        break;
-                    case "ACCENT_KEY": // TODO
+                    case "FRAG_SWITCHER_KEY": // TODO
                         break;
                 }
             }

@@ -1,9 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <PreferenceCategory
-        android:title="Look and Feel">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
         <ListPreference
             android:key="THEME_KEY"
@@ -13,23 +9,11 @@
             android:defaultValue="0"
             android:summary="Select the base theme"/>
 
-        <ColorPickerPreference
-            android:defaultValue="@color/colorPrimary"
-            android:dialogTitle="@string/color_picker_default_title"
-            android:key="PRIMARY_KEY"
-            android:persistent="false"
-            android:summary="Select the primary color"
-            android:title="Primary Color"
-            app:pref_size="small" />
+        <CheckBoxPreference
+            android:key="FRAG_SWITCHER_KEY"
+            android:title="Use BottomBar as Switcher"
+            android:defaultValue="false"
+            android:summary="Current Switcher: Navigation Drawer"
+            />
 
-        <ColorPickerPreference
-            android:defaultValue="@color/colorAccent"
-            android:dialogTitle="@string/color_picker_default_title"
-            android:key="ACCENT_KEY"
-            android:persistent="false"
-            android:summary="Select the secondary color"
-            android:title="Accent color"
-            app:pref_size="small" />
-
-    </PreferenceCategory>
 </PreferenceScreen>

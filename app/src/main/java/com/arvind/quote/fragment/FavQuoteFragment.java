@@ -2,7 +2,6 @@ package com.arvind.quote.fragment;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
@@ -19,7 +18,7 @@ import com.arvind.quote.MainActivity;
 import com.arvind.quote.R;
 import com.arvind.quote.adapter.FavQuoteAdapter;
 import com.arvind.quote.adapter.Quote;
-import com.arvind.quote.database.DatabaseHelper;
+import com.arvind.quote.database.FavDatabaseHelper;
 
 import java.util.ArrayList;
 
@@ -40,7 +39,7 @@ public class FavQuoteFragment extends Fragment {
         RecyclerView quoteRecyclerView = view.findViewById(R.id.fav_quote_recyclerview);
 
         // RecyclerView's Adapter - Detects change on DataSet
-        DatabaseHelper dbHalp = DatabaseHelper.getInstance(getActivity().getApplicationContext());
+        FavDatabaseHelper dbHalp = FavDatabaseHelper.getInstance(getActivity().getApplicationContext());
 
         ArrayList<Quote> favQuoteArrayList = dbHalp.getFavQuotes();
 
@@ -89,7 +88,7 @@ public class FavQuoteFragment extends Fragment {
 
     @Override
     public void onDestroyView() {
-        if(snackbar != null)
+        if (snackbar != null)
             snackbar.dismiss();
         super.onDestroyView();
         Log.i(TAG, "onDestroyView called");

@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -20,6 +21,7 @@ import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.arvind.quote.adapter.Quote;
@@ -46,6 +48,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
     // Theme ID - from styles.xml
     private int themeId = R.style.AppTheme;
+
     // Keep track of previous selected Drawer Item
     // to make sure the same fragment isn't instantiated again
     private MenuItem previousItem;
@@ -65,7 +68,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
 
         String themeKey = sharedPreferences.getString("THEME_KEY", "light");
+
         int cardViewBackGround = R.color.colorLightCardView;
+        int activityBackground = R.color.lightBackground;
 
         Log.d(TAG, "Theme: " + themeKey);
         switch (themeKey) {
@@ -75,22 +80,33 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             case "dark":
                 themeId = R.style.AnotherAppTheme;
                 cardViewBackGround = R.color.colorDarkCardView;
+                activityBackground = R.color.darkBackground;
                 break;
             case "translucent": // TODO: TRANSLUCENT
-                themeId = R.style.AppTheme;
-                cardViewBackGround = R.color.colorLightCardView;
+                themeId = R.style.TranslucentAppTheme;
+                cardViewBackGround = R.color.translucentBackground;
                 break;
         }
 
         // Set Activity theme
         setTheme(themeId);
-
         setContentView(R.layout.activity_main);
 
         NavigationView navigationView = findViewById(R.id.nav_bar_view);
 
         // Set background of the Navigation drawer view
         navigationView.setBackgroundColor(getResources().getColor(cardViewBackGround));
+
+        RelativeLayout rootLayout = findViewById(R.id.root_layout);
+
+        if (themeKey.equals("translucent")) {
+            AnimationDrawable anim = (AnimationDrawable) rootLayout.getBackground();
+            anim.setEnterFadeDuration(1000);
+            anim.setExitFadeDuration(1000);
+            // Start the animating background
+            anim.start();
+        } else
+            rootLayout.setBackgroundResource(activityBackground);
 
         // Root Layout of the Application
         // DrawerLayout consists of
@@ -158,6 +174,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                         .withAboutDescription("Random project to fetch random quotes from random providers")
                         .withAboutIconShown(true)
                         .withVersionShown(true)
+                        .withAutoDetect(true)
+                        .withLicenseShown(true)
                         .supportFragment();
                 break;
             case R.id.fav_quotes_item:
@@ -208,6 +226,11 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
         drawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     /* Allows the user to share currently displayed quote */

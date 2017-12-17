@@ -33,7 +33,6 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
         // Activity under which it'd reside
         LayoutInflater layoutInflater = LayoutInflater.from(context);
 
-        // Inflate the Single Quote Layout
         View quoteView = layoutInflater.inflate(R.layout.quote_view, parent, false);
 
         // Return a new holder instance
@@ -74,6 +73,7 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
                 public void onClick(View v) {
                     new GibQuoteFragment().addToFavQuoteList(context, quoteList.get(getAdapterPosition()));
                     starQuoteView.setImageResource(R.drawable.star_on);
+                    starQuoteView.setEnabled(false);
                 }
             });
 

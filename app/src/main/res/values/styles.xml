@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="TranslucentAppTheme" parent="@style/AnotherAppTheme">
+        <item name="colorPrimary">#80000000</item>
+        <item name="colorPrimaryDark">#99000000</item>
+        <item name="colorAccent">#B3FFFFFF</item>
+        <item name="android:textColor">#FFFFFF</item>
+        <item name="about_libraries_card">@color/colorTranslucent</item>
+    </style>
 
     <style name="AppTheme" parent="@style/PreferenceFixTheme.Light.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -14,6 +22,14 @@
         <item name="about_libraries_special_button_openSource">@color/about_libraries_special_button_openSource</item>
         <item name="about_libraries_dividerDark_openSource">@color/about_libraries_dividerDark_openSource</item>
         <item name="about_libraries_dividerLight_openSource">@color/about_libraries_dividerLight_openSource</item>
+    </style>
+
+    <style name="someStyle">
+        <item name="android:background">?colorPrimaryDark</item>
+    </style>
+
+    <style name="someFabStyle">
+        <item name="android:backgroundTint" tools:targetApi="lollipop">?colorPrimary</item>
     </style>
 
     <style name="AnotherAppTheme" parent="@style/PreferenceFixTheme.NoActionBar">

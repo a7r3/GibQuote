@@ -13,7 +13,7 @@ import android.widget.TextView;
 
 import com.arvind.quote.MainActivity;
 import com.arvind.quote.R;
-import com.arvind.quote.database.DatabaseHelper;
+import com.arvind.quote.database.FavDatabaseHelper;
 
 import java.util.List;
 
@@ -82,8 +82,8 @@ public class FavQuoteAdapter extends RecyclerView.Adapter<FavQuoteAdapter.QuoteV
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
-                                    DatabaseHelper databaseHelper = DatabaseHelper.getInstance(context);
-                                    databaseHelper.removeFavQuote(favQuoteList.get(getAdapterPosition()).getId());
+                                    FavDatabaseHelper favDatabaseHelper = FavDatabaseHelper.getInstance(context);
+                                    favDatabaseHelper.removeFavQuote(favQuoteList.get(getAdapterPosition()).getId());
                                     favQuoteList.remove(favQuoteList.get(getAdapterPosition()));
                                     notifyItemRemoved(getAdapterPosition());
                                 }

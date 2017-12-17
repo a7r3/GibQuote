@@ -19,15 +19,6 @@
         android:src="@drawable/star_off"
         android:padding="8dp"/>
 
-    <!--<android.support.v7.widget.RecyclerView-->
-        <!--android:padding="8dp"-->
-        <!--android:id="@+id/tags_recycler_view"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:layout_toRightOf="@id/star_quote_button"-->
-        <!--android:orientation="horizontal"-->
-        <!--android:overScrollMode="never" />-->
-
     <TextView
         android:id="@+id/quote_text_view"
         android:layout_width="match_parent"
@@ -38,8 +29,6 @@
         android:paddingBottom="8dp"
         android:text="NULL Life for the Win"
         android:textSize="18sp" />
-
-    <!--android:layout_below="@id/tags_recycler_view"-->
 
     <TextView
         android:id="@+id/author_text_view"

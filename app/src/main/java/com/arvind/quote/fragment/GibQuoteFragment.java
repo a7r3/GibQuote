@@ -2,7 +2,6 @@ package com.arvind.quote.fragment;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.database.DatabaseUtils;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -25,7 +24,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -36,41 +34,46 @@ import com.arvind.quote.MainActivity;
 import com.arvind.quote.R;
 import com.arvind.quote.adapter.Quote;
 import com.arvind.quote.adapter.QuoteAdapter;
-import com.arvind.quote.database.DatabaseHelper;
+import com.arvind.quote.database.FavDatabaseHelper;
+import com.arvind.quote.database.GibDatabaseHelper;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
 
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Random;
-
-import static com.arvind.quote.Auth.APP_KEY_QUOTE;
 
 public class GibQuoteFragment extends Fragment {
 
-    public int favQuoteId = 0;
+    private String TAG = "GibQuoteFragment";
+
     private ArrayList<Quote> quoteArrayList = new ArrayList<>();
     private QuoteAdapter quoteAdapter;
     private RecyclerView quoteRecyclerView;
+
     private RequestQueue requestQueue;
-    private String TAG = "GibQuoteFragment";
+
+    // QuoteProvider Details
     private String quoteProvider;
     private String quoteUrl;
     private String quoteTextVarName;
     private String quoteAuthorVarName;
+
     private SharedPreferences sharedPreferences;
 
-    // List of QuoteProviders
-    private String[] quoteProviders = new String[]{"Forismatic", "Talaikis", "Storm", "FavQs"};
+    // Offline Quote Database Helper
+    private GibDatabaseHelper gibDatabaseHelper;
+
+    private Context mContext;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        mContext = getContext();
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
 
         if (savedInstanceState != null) {
             Log.d(TAG, "Restoring Instance state");
@@ -80,30 +83,21 @@ public class GibQuoteFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+
         View view = inflater.inflate(R.layout.gib_quote_fragment, container, false);
 
         MainActivity.setActionBarTitle("GibQuote");
 
-        // Get the Animation Drawable from RelativeLayout
-        // Currently 'animation_list.xml'
-        //
-        // final RelativeLayout rootLayout = (RelativeLayout) view.findViewById(R.id.root_layout);
-        // AnimationDrawable anim = (AnimationDrawable) rootLayout.getBackground();
-        // anim.setEnterFadeDuration(1000);
-        // anim.setExitFadeDuration(1000);
-        // // Start the animating background
-        // anim.start();
-
         // RequestQueue executes any number of requests, asynchronously
         // More of a Queue Manager for Volley
-        requestQueue = Volley.newRequestQueue(getContext());
+        requestQueue = Volley.newRequestQueue(mContext);
 
         // RecyclerView Object
         quoteRecyclerView = view.findViewById(R.id.quote_list_view);
 
         // RecyclerView's Adapter - Detects change on DataSet
-        quoteAdapter = new QuoteAdapter(getContext(), quoteArrayList);
+        quoteAdapter = new QuoteAdapter(mContext, quoteArrayList);
 
         // Allows Recycler to perform actions on the Layout
         // whenever the particular adapter detects a change
@@ -111,7 +105,7 @@ public class GibQuoteFragment extends Fragment {
 
         // RecyclerView's Layout Manager
         // Used for viewing RecyclerView's nodes
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(mContext);
 
         // Reverses the Layout
         // Newer nodes come at the top
@@ -125,24 +119,22 @@ public class GibQuoteFragment extends Fragment {
         // Add Default ItemDecoration
         // Used to Decorate every RecyclerView Item
         // Any interaction with the Item won't affect the decoration
-        quoteRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(), DividerItemDecoration.VERTICAL));
+        quoteRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
 
         // FAB to generate quote onClick
         final FloatingActionButton gibQuoteFab = view.findViewById(R.id.gib_quote_fab);
 
+        String[] quoteProviders;
         if (isNetworkAvailable()) {
-            Log.v(TAG, "INTERNET CONNECTIVITY : OK");
+            Log.v(TAG, "Connected to Internet");
+            quoteProviders = new String[]{"Offline", "Forismatic", "Talaikis", "Storm"};
         } else {
             Log.v(TAG, "DAM SON :(");
             Snackbar.make(
                     getActivity().findViewById(R.id.frame_layout),
-                    "No Internet Connection",
+                    "No Internet Connection? We've got you covered",
                     Snackbar.LENGTH_LONG).show();
-            quoteArrayList.add(new Quote("Always pay your Internet Bills on-time",
-                    "Internet Service Provider"));
-            quoteAdapter.notifyItemInserted(quoteArrayList.size() - 1);
-            quoteRecyclerView.smoothScrollToPosition(quoteArrayList.size() - 1);
-            gibQuoteFab.setEnabled(false);
+            quoteProviders = new String[]{"Offline"};
         }
 
         // Adding an Listener which ...
@@ -190,11 +182,19 @@ public class GibQuoteFragment extends Fragment {
             }
         });
 
+        gibDatabaseHelper = GibDatabaseHelper.getInstance(mContext.getApplicationContext());
+
         // generateStuffs on receiving a click on FAB
         gibQuoteFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                generateStuffs();
+                if (quoteProvider.equals("Offline")) {
+                    quoteArrayList.add(gibDatabaseHelper.getRandomQuote(generateRandomNumber()));
+                    quoteAdapter.notifyItemInserted(quoteArrayList.size());
+                    quoteRecyclerView.smoothScrollToPosition(quoteAdapter.getItemCount() - 1);
+                } else {
+                    generateStuffs();
+                }
             }
         });
 
@@ -208,7 +208,6 @@ public class GibQuoteFragment extends Fragment {
 
         // Provides user to select an entry from a list of dropdown entries
         Spinner providerSpinner = view.findViewById(R.id.provider_select);
-
         providerSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -225,7 +224,7 @@ public class GibQuoteFragment extends Fragment {
         // Adapter which would provide the Dropdown elements
         // And listen for changes in respective elements (select events)
         ArrayAdapter<String> providerArrayAdapter = new ArrayAdapter<>(
-                getContext(),
+                mContext,
                 R.layout.support_simple_spinner_dropdown_item,
                 quoteProviders
         );
@@ -236,24 +235,10 @@ public class GibQuoteFragment extends Fragment {
         return view;
     }
 
-    public void addToFavQuoteList(Context context, Quote quoteData) {
-        DatabaseHelper dbHalp = DatabaseHelper.getInstance(context);
-        int id = (int) dbHalp.getRowCount();
-        Log.d(TAG, "Inserting FavQuote " + id);
-        dbHalp.addFavQuote(id, quoteData);
-        Toast.makeText(context, "Added to Favorites", Toast.LENGTH_SHORT).show();
-    }
-
+    // Method to change JSON parameters based on the quoteProvider selected
+    // 'Offline' has no relevance here
     private void changeProvider(String quoteProvider) {
-        Log.d(TAG, "QuoteProvider: " + quoteProvider);
-
-        // Randomness
         switch (quoteProvider) {
-            case "FavQs":
-                quoteUrl = "https://favqs.com/api/quotes/";
-                quoteTextVarName = "body";
-                quoteAuthorVarName = "author";
-                break;
             case "Forismatic":
             default:
                 quoteUrl = "http://api.forismatic.com/api/1.0/?method=getQuote&lang=en&format=json&key=";
@@ -271,11 +256,10 @@ public class GibQuoteFragment extends Fragment {
                 quoteAuthorVarName = "author";
                 break;
         }
-
+        Log.d(TAG, "QuoteProvider: Changed to " + quoteProvider);
     }
 
     private void generateStuffs() {
-
         // Creating a new GET JSONObject request
         //
         // Params
@@ -283,13 +267,9 @@ public class GibQuoteFragment extends Fragment {
         // The Request URL - a random quote's URL
         // A Listener for performing actions on successfully obtaining a JSON Object
         // A Listener for performing actions if an error occurs while requesting
-        //
-        // Additionally, a method of JsonObjectRequest - getHeaders() - has been overridden to provide
-        // the request headers (Content Type & Authorization token)
-
         JsonObjectRequest jsonObjectRequest = new JsonObjectRequest(
                 Request.Method.GET,
-                !quoteProvider.matches("Storm|Talaikis")
+                quoteProvider.equals("Forismatic")
                         ? quoteUrl + generateRandomNumber().toString()
                         : quoteUrl,
                 null,
@@ -306,43 +286,24 @@ public class GibQuoteFragment extends Fragment {
                         Log.e(TAG, error.toString());
                     }
                 }
-        ) {
-            // Optional method to pass Request Headers
-            @Override
-            public Map<String, String> getHeaders() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                if (quoteProvider.equals("FavQs")) {
-                    params.put("Content-Type", "application/json");
-                    params.put("Authorization", "Token token=\"" + APP_KEY_QUOTE + "\"");
-                }
-                return params;
-            }
-        };
-
+        );
         // Add the request to Volley's Request Queue
         requestQueue.add(jsonObjectRequest);
-
     }
 
-    /* To Check if we're connected to the Internet */
-    // TODO: Get isNetworkAvailable explained
-    private boolean isNetworkAvailable() {
-        NetworkInfo activeNetworkInfo = null;
-        ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(getContext().CONNECTIVITY_SERVICE);
-        if (connectivityManager != null)
-            activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
-        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
-    }
-
-    /* Generates a Random number to be sent as the Quote's ID */
+    // Generates a Random number to be sent as the Quote's ID
     private Integer generateRandomNumber() {
-        int MIN = 1;
-        // Yeah! This was the Number of Quotes as on 19/09/17
-        // But, some quotes are 404, dunno why
+        int MIN = 0;
+        // Yeah! This was the Number of Quotes at FavQs as on 19/09/17
+        // But, some quotes are 404
         int MAX = 62024;
+        if (quoteProvider.equals("Offline")) {
+            MAX = ((int) gibDatabaseHelper.getRowCount());
+        }
         return new Random().nextInt((MAX - MIN) + 1) + MIN;
     }
 
+    // Method to parse Quote from JSON Result
     private void parseQuote(JSONObject response) {
         Log.i(TAG, response.toString());
 
@@ -354,12 +315,27 @@ public class GibQuoteFragment extends Fragment {
             // Notify the Adapter which in turn notifies the RecyclerView
             // that a new item has been inserted
             quoteAdapter.notifyItemInserted(quoteArrayList.size());
-
-            // Scroll the RecyclerView to given position, smooothly
+            // Scroll the RecyclerView to given position, smoothly
             quoteRecyclerView.smoothScrollToPosition(quoteAdapter.getItemCount() - 1);
-
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /* To Check if we're connected to the Internet */
+    // TODO: Get isNetworkAvailable explained
+    private boolean isNetworkAvailable() {
+        try {
+            NetworkInfo activeNetworkInfo = null;
+            ConnectivityManager connectivityManager =
+                    (ConnectivityManager) mContext
+                            .getSystemService(Context.CONNECTIVITY_SERVICE);
+            if (connectivityManager != null)
+                activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+            return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
@@ -368,7 +344,7 @@ public class GibQuoteFragment extends Fragment {
                 .createFromAsset(getActivity().getAssets(),
                         "fonts/comfortaa/comfortaa_bold.ttf");
 
-        final TapTarget providerTapTarget = TapTarget.forView(view.findViewById(R.id.provider_select),
+        TapTarget providerTapTarget = TapTarget.forView(view.findViewById(R.id.provider_select),
                 "Get started",
                 "Select Provider from which you'd fetch quotes")
                 .outerCircleColor(R.color.colorPrimary)
@@ -408,7 +384,7 @@ public class GibQuoteFragment extends Fragment {
                     @Override
                     public void onSequenceFinish() {
                         Log.i(TAG, "Introduction complete, start Gibbing Quotes");
-                        Toast.makeText(getContext(), "You're good to go!", Toast.LENGTH_LONG).show();
+                        Toast.makeText(mContext, "You're good to go!", Toast.LENGTH_LONG).show();
                         sharedPreferences.edit()
                                 .putBoolean("IS_USER_INTRODUCED", true)
                                 .apply();
@@ -416,16 +392,27 @@ public class GibQuoteFragment extends Fragment {
 
                     @Override
                     public void onSequenceStep(TapTarget lastTarget, boolean targetClicked) {
-                        if (lastTarget.equals(providerTapTarget) && targetClicked) {
-
+                        if (!targetClicked) {
+                            // Seems the user knows everything
+                            sharedPreferences.edit()
+                                    .putBoolean("IS_USER_INTRODUCED", true)
+                                    .apply();
                         }
                     }
 
                     @Override
                     public void onSequenceCanceled(TapTarget lastTarget) {
-                        Log.d(TAG, "Eh, what ? Kthxbai");
+                        Log.d(TAG, "Intro Sequence Cancelled");
                     }
                 }).start();
+    }
+
+    public void addToFavQuoteList(Context context, Quote quoteData) {
+        FavDatabaseHelper favDatabaseHelper = FavDatabaseHelper.getInstance(context);
+        int id = (int) favDatabaseHelper.getRowCount();
+        Log.d(TAG, "Inserting FavQuote " + id);
+        favDatabaseHelper.addFavQuote(id, quoteData);
+        Toast.makeText(context, "Added to Favorites", Toast.LENGTH_SHORT).show();
     }
 
     @Override

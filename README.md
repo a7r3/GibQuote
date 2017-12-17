@@ -11,9 +11,11 @@ Application Icon used from <b>[FlatIcon](https://flaticon.com)
 ## Features
 
 * Fetch quotes from three providers
-  - [FavQs](https://favqs.com)
+  - **Offline Quote Database** (gathered from internet)
+    - 19997 Quotes - Some of them are faulty, blame my extraction script ;-;
   - [Talaikis](https://talaikis.com/random_quotes_api)
   - [Forismatic](https://forismatic.com/en/api)
+  - [Storm](https://quotes.stormconsultancy.co.uk/api)
 
 * Share Quote by long-pressing it
 
@@ -22,8 +24,10 @@ Application Icon used from <b>[FlatIcon](https://flaticon.com)
 
 * (TODO) Show Quotes / QoTD at a particular time (Notification)
 
-* Two Base Themes (Light/Dark)
-  - Translucent theme coming soon
+* Three Base themes
+  - Light
+  - Dark
+  - Translucent (with Animating Gradients)
 
 * (TODO) Set of Primary and Accent color schemes
 
@@ -47,5 +51,3 @@ A copy is available in [LICENSE](https://gitbub.com/a7r3/GibQuote/blob/master/LI
 > WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
 > COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
 > ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-# APPLICATION IS NOT FOR PRODUCTION USE
