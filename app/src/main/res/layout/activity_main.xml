@@ -36,8 +36,8 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:background="?colorPrimary"
-            app:itemIconTint="@android:color/white"
-            app:itemTextColor="@android:color/white"
+            app:itemIconTint="@color/bottom_nav_colors"
+            app:itemTextColor="@color/bottom_nav_colors"
             app:elevation="2dp"
             app:menu="@menu/drawer_view"/>
 

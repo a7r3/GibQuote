@@ -7,6 +7,8 @@
         <item name="colorAccent">#B3FFFFFF</item>
         <item name="android:textColor">#FFFFFF</item>
         <item name="about_libraries_card">@color/colorTranslucent</item>
+        <item name="fab_icon_color">#FF000000</item>
+        <item name="style_icon_color">#FF000000</item>
         <item name="icon_color">#FFFFFFFF</item>
     </style>
 
@@ -23,7 +25,9 @@
         <item name="about_libraries_special_button_openSource">@color/about_libraries_special_button_openSource</item>
         <item name="about_libraries_dividerDark_openSource">@color/about_libraries_dividerDark_openSource</item>
         <item name="about_libraries_dividerLight_openSource">@color/about_libraries_dividerLight_openSource</item>
-        <item name="icon_color">#FF000000</item>
+        <item name="fab_icon_color">#FFFFFFFF</item>
+        <item name="style_icon_color">#FF000000</item>
+        <item name="icon_color">#FFFFFFFF</item>
     </style>
 
     <style name="someStyle">
@@ -47,6 +51,8 @@
         <item name="about_libraries_special_button_openSource">@color/about_libraries_special_button_openSource_dark</item>
         <item name="about_libraries_dividerDark_openSource">@color/about_libraries_dividerDark_openSource_dark</item>
         <item name="about_libraries_dividerLight_openSource">@color/about_libraries_dividerLight_openSource_dark</item>
+        <item name="fab_icon_color">#FFFFFFFF</item>
+        <item name="style_icon_color">#FFFFFFFF</item>
         <item name="icon_color">#FFFFFFFF</item>
     </style>
 
