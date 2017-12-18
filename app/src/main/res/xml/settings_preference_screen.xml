@@ -7,12 +7,14 @@
             android:entries="@array/theme_strings"
             android:entryValues="@array/theme_values"
             android:defaultValue="0"
+            android:icon="@drawable/ic_style_black_24dp"
             android:summary="Select the base theme"/>
 
         <CheckBoxPreference
             android:key="FRAG_SWITCHER_KEY"
             android:title="Use BottomBar as Switcher"
             android:defaultValue="false"
+            android:iconSpaceReserved="true"
             android:summary="Current Switcher: Navigation Drawer"
             />
 

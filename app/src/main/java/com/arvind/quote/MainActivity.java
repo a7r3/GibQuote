@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -21,6 +22,7 @@ import android.support.v7.preference.PreferenceScreen;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
@@ -37,11 +39,11 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     // Who am I ?
     private final String TAG = "MainActivity";
     // Layout under which fragments would reside
-    private DrawerLayout drawerLayout;
+    private static DrawerLayout drawerLayout;
 
     // Provides toggling action to open the Navigation Drawer
     // Tha Hamburger thingy
-    private ActionBarDrawerToggle drawerToggle;
+    private static ActionBarDrawerToggle drawerToggle;
 
     // Application's Shared Preferences
     private SharedPreferences sharedPreferences;
@@ -52,6 +54,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     // Keep track of previous selected Drawer Item
     // to make sure the same fragment isn't instantiated again
     private MenuItem previousItem;
+
+    private static BottomNavigationView bottomNavigationView;
 
     // Required by Fragments to ...
     // Set ActionBar's title
@@ -154,6 +158,36 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         // Since GibQuoteFragment is shown by default
         // Set it as the selected item in NavigationView (Drawer)
         navigationView.getMenu().getItem(0).setChecked(true);
+
+        bottomNavigationView = findViewById(R.id.bottom_nav);
+
+        bottomNavigationView.setVisibility(View.VISIBLE);
+
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                // If the same item isn't selected, then switch fragment
+                if (previousItem != item) {
+                    switchFragment(item);
+                    previousItem = item;
+                }return true;
+            }
+        });
+
+        bottomNavigationView.getMenu().getItem(0).setChecked(true);
+
+        boolean isBottomNavEnabled = sharedPreferences.getBoolean("FRAG_SWITCHER_KEY", false);
+        if(isBottomNavEnabled) {
+            bottomNavigationView.setVisibility(View.VISIBLE);
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+            drawerToggle.setDrawerIndicatorEnabled(false);
+            getSupportActionBar().hide();
+        } else {
+            getSupportActionBar().show();
+            bottomNavigationView.setVisibility(View.GONE);
+            drawerToggle.setDrawerIndicatorEnabled(true);
+            drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        }
     }
 
     public void switchFragment(MenuItem item) {

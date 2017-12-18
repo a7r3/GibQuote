@@ -47,8 +47,8 @@
         android:layout_alignParentBottom="true"
         android:layout_alignParentRight="true"
         android:layout_margin="12dp"
-        android:src="@android:drawable/stat_notify_sync"
-        style="@style/someStyle"
+        android:src="@drawable/ic_sms_black_24dp"
+        style="@style/someFabStyle"
         app:fabSize="normal"
         app:rippleColor="@color/cardview_light_background" />
 

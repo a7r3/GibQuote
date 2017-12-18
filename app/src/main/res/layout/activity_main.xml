@@ -27,7 +27,19 @@
             android:id="@+id/frame_layout"
             android:layout_below="@id/app_toolbar"
             android:layout_width="match_parent"
+            android:layout_above="@id/bottom_nav"
             android:layout_height="match_parent"/>
+
+        <android.support.design.widget.BottomNavigationView
+            android:id="@+id/bottom_nav"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="?colorPrimary"
+            app:itemIconTint="@android:color/white"
+            app:itemTextColor="@android:color/white"
+            app:elevation="2dp"
+            app:menu="@menu/drawer_view"/>
 
     </RelativeLayout>
 

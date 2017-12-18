@@ -5,19 +5,19 @@
         <item
             android:id="@+id/gib_quotes_item"
             android:title="Gib Quotes"
-            android:icon="@android:drawable/stat_notify_sync"/>
+            android:icon="@drawable/ic_sms_black_24dp"/>
         <item
             android:id="@+id/fav_quotes_item"
-            android:title="Favorite Quotes"
-            android:icon="@android:drawable/btn_star_big_off"/>
+            android:title="Fav Quotes"
+            android:icon="@drawable/ic_star_black_24dp"/>
         <item
             android:id="@+id/settings_item"
             android:title="Settings"
-            android:icon="@android:drawable/ic_menu_edit"/>
+            android:icon="@drawable/ic_settings_black_24dp"/>
         <item
             android:id="@+id/about_item"
             android:title="About"
-            android:icon="@android:drawable/ic_menu_info_details"/>
+            android:icon="@drawable/ic_info_outline_black_24dp"/>
     </group>
 
 </menu>
