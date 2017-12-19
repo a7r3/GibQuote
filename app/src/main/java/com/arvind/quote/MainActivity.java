@@ -39,11 +39,11 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     // Who am I ?
     private final String TAG = "MainActivity";
     // Layout under which fragments would reside
-    private static DrawerLayout drawerLayout;
+    private DrawerLayout drawerLayout;
 
     // Provides toggling action to open the Navigation Drawer
     // Tha Hamburger thingy
-    private static ActionBarDrawerToggle drawerToggle;
+    private ActionBarDrawerToggle drawerToggle;
 
     // Application's Shared Preferences
     private SharedPreferences sharedPreferences;
@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     // to make sure the same fragment isn't instantiated again
     private MenuItem previousItem;
 
-    private static BottomNavigationView bottomNavigationView;
+    private BottomNavigationView bottomNavigationView;
 
     // Required by Fragments to ...
     // Set ActionBar's title
