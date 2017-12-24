@@ -4,20 +4,20 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/gib_quotes_item"
-            android:title="Gib Quotes"
-            android:icon="@drawable/ic_sms_black_24dp"/>
+            android:icon="@drawable/ic_sms_black_24dp"
+            android:title="Gib Quotes" />
         <item
             android:id="@+id/fav_quotes_item"
-            android:title="Fav Quotes"
-            android:icon="@drawable/ic_star_black_24dp"/>
+            android:icon="@drawable/ic_star_black_24dp"
+            android:title="Fav Quotes" />
         <item
             android:id="@+id/settings_item"
-            android:title="Settings"
-            android:icon="@drawable/ic_settings_black_24dp"/>
+            android:icon="@drawable/ic_settings_black_24dp"
+            android:title="Settings" />
         <item
             android:id="@+id/about_item"
-            android:title="About"
-            android:icon="@drawable/ic_info_outline_black_24dp"/>
+            android:icon="@drawable/ic_info_outline_black_24dp"
+            android:title="About" />
     </group>
 
 </menu>

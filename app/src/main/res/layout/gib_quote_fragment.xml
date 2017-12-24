@@ -1,35 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
     <LinearLayout
         android:id="@+id/provider_layout"
+        style="@style/someStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:weightSum="5"
         android:elevation="2dp"
-        style="@style/someStyle"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:weightSum="5">
 
         <TextView
             android:layout_width="0dp"
-            android:layout_weight="2"
-            android:padding="8dp"
-            android:textStyle="bold"
-            android:textColor="@android:color/white"
             android:layout_height="wrap_content"
+            android:layout_weight="2"
             android:gravity="center"
-            android:text="Quote Provider" />
+            android:padding="8dp"
+            android:text="Quote Provider"
+            android:textColor="@android:color/white"
+            android:textStyle="bold" />
 
         <Spinner
             android:id="@+id/provider_select"
             android:layout_width="0dp"
-            android:layout_weight="3"
             android:layout_height="wrap_content"
-            android:theme="@style/AnotherAppTheme"
-            android:spinnerMode="dropdown" />
+            android:layout_weight="3"
+            android:spinnerMode="dropdown"
+            android:theme="@style/AnotherAppTheme" />
 
     </LinearLayout>
 
@@ -37,18 +37,19 @@
         android:id="@+id/quote_list_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/provider_layout"
-        />
+        android:layout_below="@id/provider_layout" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/gib_quote_fab"
+        style="@style/someFabStyle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_margin="12dp"
+        android:elevation="@dimen/cardview_default_elevation"
         android:src="@drawable/ic_sms_black_24dp"
-        style="@style/someFabStyle"
         app:fabSize="normal"
         app:rippleColor="@color/cardview_light_background" />
 

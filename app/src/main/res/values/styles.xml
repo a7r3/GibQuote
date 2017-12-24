@@ -18,13 +18,20 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="drawerArrowStyle">@style/AppTheme.DrawerArrowStyle</item>
         <item name="toolbarStyle">@style/AppTheme.Toolbar</item>
-        <item name="about_libraries_window_background">@color/about_libraries_window_background</item>
+        <item name="about_libraries_window_background">@color/about_libraries_window_background
+        </item>
         <item name="about_libraries_card">@color/about_libraries_card</item>
         <item name="about_libraries_title_openSource">@color/about_libraries_title_openSource</item>
         <item name="about_libraries_text_openSource">@color/about_libraries_text_openSource</item>
-        <item name="about_libraries_special_button_openSource">@color/about_libraries_special_button_openSource</item>
-        <item name="about_libraries_dividerDark_openSource">@color/about_libraries_dividerDark_openSource</item>
-        <item name="about_libraries_dividerLight_openSource">@color/about_libraries_dividerLight_openSource</item>
+        <item name="about_libraries_special_button_openSource">
+            @color/about_libraries_special_button_openSource
+        </item>
+        <item name="about_libraries_dividerDark_openSource">
+            @color/about_libraries_dividerDark_openSource
+        </item>
+        <item name="about_libraries_dividerLight_openSource">
+            @color/about_libraries_dividerLight_openSource
+        </item>
         <item name="fab_icon_color">#FFFFFFFF</item>
         <item name="style_icon_color">#FF000000</item>
         <item name="icon_color">#FFFFFFFF</item>
@@ -45,12 +52,22 @@
         <item name="drawerArrowStyle">@style/AppTheme.DrawerArrowStyle</item>
         <item name="toolbarStyle">@style/AppTheme.Toolbar</item>
         <item name="about_libraries_card">@color/about_libraries_card_dark</item>
-        <item name="about_libraries_window_background">@color/about_libraries_window_background_dark</item>
-        <item name="about_libraries_title_openSource">@color/about_libraries_title_openSource_dark</item>
-        <item name="about_libraries_text_openSource">@color/about_libraries_text_openSource_dark</item>
-        <item name="about_libraries_special_button_openSource">@color/about_libraries_special_button_openSource_dark</item>
-        <item name="about_libraries_dividerDark_openSource">@color/about_libraries_dividerDark_openSource_dark</item>
-        <item name="about_libraries_dividerLight_openSource">@color/about_libraries_dividerLight_openSource_dark</item>
+        <item name="about_libraries_window_background">
+            @color/about_libraries_window_background_dark
+        </item>
+        <item name="about_libraries_title_openSource">@color/about_libraries_title_openSource_dark
+        </item>
+        <item name="about_libraries_text_openSource">@color/about_libraries_text_openSource_dark
+        </item>
+        <item name="about_libraries_special_button_openSource">
+            @color/about_libraries_special_button_openSource_dark
+        </item>
+        <item name="about_libraries_dividerDark_openSource">
+            @color/about_libraries_dividerDark_openSource_dark
+        </item>
+        <item name="about_libraries_dividerLight_openSource">
+            @color/about_libraries_dividerLight_openSource_dark
+        </item>
         <item name="fab_icon_color">#FFFFFFFF</item>
         <item name="style_icon_color">#FFFFFFFF</item>
         <item name="icon_color">#FFFFFFFF</item>
@@ -95,4 +112,8 @@
         <item name="android:textColor">@android:color/white</item>
     </style>
 
+    <style name="DialogTheme" parent="Base.Theme.AppCompat.Dialog.FixedSize">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
 </resources>

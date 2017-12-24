@@ -2,7 +2,7 @@
 <resources>
     <declare-styleable name="IconColor">
         <attr name="icon_color" format="color" />
-        <attr name="fab_icon_color" format="color"/>
-        <attr name="style_icon_color" format="color"/>
+        <attr name="fab_icon_color" format="color" />
+        <attr name="style_icon_color" format="color" />
     </declare-styleable>
 </resources>

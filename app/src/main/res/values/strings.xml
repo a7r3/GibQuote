@@ -8,8 +8,8 @@
         <item>"Translucent"</item>
     </string-array>
     <string-array name="theme_values">
-        <item >light</item>
-        <item >dark</item>
-        <item >translucent</item>
+        <item>light</item>
+        <item>dark</item>
+        <item>translucent</item>
     </string-array>
 </resources>

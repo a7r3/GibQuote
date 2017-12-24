@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:background="@color/colorDarkCardView"
+    android:id="@+id/notification_dialog">
+
+    <include layout="@layout/fav_quote_view"/>
+
+    <LinearLayout
+        android:paddingTop="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:weightSum="2"
+        android:dividerPadding="8dp"
+        android:orientation="horizontal">
+
+        <Button
+            android:layout_weight="1"
+            android:id="@+id/notif_share_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorAccent"
+            android:background="?android:selectableItemBackground"
+            android:text="Share" />
+
+        <Button
+            android:layout_weight="1"
+            android:id="@+id/notif_fav_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Fav this"
+            android:textColor="@color/colorAccent"
+            android:background="?android:selectableItemBackground" />
+
+    </LinearLayout>
+
+</LinearLayout>

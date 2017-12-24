@@ -1,5 +1,7 @@
 package com.arvind.quote;
 
+import android.app.PendingIntent;
+import android.app.VoiceInteractor;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -26,11 +28,22 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.arvind.quote.adapter.Quote;
+import com.arvind.quote.database.FavDatabaseHelper;
 import com.arvind.quote.fragment.FavQuoteFragment;
 import com.arvind.quote.fragment.GibQuoteFragment;
 import com.arvind.quote.fragment.SettingsFragment;
 import com.mikepenz.aboutlibraries.LibsBuilder;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
 
@@ -64,6 +77,15 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             actionBar.setTitle(title);
         }
     }
+
+    public static NotificationUtils notificationUtils;
+
+    public static NotificationUtils getNotificationUtils(Context context) {
+        return notificationUtils;
+    }
+
+    private RequestQueue requestQueue;
+    private boolean isTagRequestSuccessful = false;
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -188,6 +210,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             drawerToggle.setDrawerIndicatorEnabled(true);
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         }
+
+        // Static instance of notificationUtils
+        // To be used everywhere, don't create new Instances
+        notificationUtils = new NotificationUtils(this);
     }
 
     public void switchFragment(MenuItem item) {
@@ -219,6 +245,33 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 fragment = new GibQuoteFragment();
                 break;
         }
+
+        JsonObjectRequest latestTagRequest = new JsonObjectRequest(
+                Request.Method.GET,
+                "https://api.github.com/repos/a7r3/GibQuote/git/refs/tags",
+                null,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        try {
+                            Log.d(TAG, new JSONArray(response.toString())
+                                    .getJSONObject(response.length())
+                                    .getJSONArray("objects").toString());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+                ,
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.d(TAG, "you missed me");
+                    }
+                }
+        );
+
+        requestQueue.add(latestTagRequest);
 
         try {
             Log.d(TAG, "Creating new Fragment Instance");
@@ -268,8 +321,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     }
 
     /* Allows the user to share currently displayed quote */
-    public void shareQuote(Context context, Quote quote) {
-        Log.d(TAG, "Creating Share Intent");
+    public static void shareQuote(Context context, Quote quote) {
+        Log.d("MainActivity", "Creating Share Intent");
         // My intention is to send (throw) a piece of Text (ball)
         Intent quoteIntent = new Intent(Intent.ACTION_SEND);
         // Piece of Text (the Ball)
@@ -282,6 +335,15 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         Toast.makeText(context, "Select an App to GibQuote", Toast.LENGTH_SHORT).show();
         // Throw the Ball!
         context.startActivity(Intent.createChooser(quoteIntent, "Share this Quote"));
+    }
+
+
+    public static void addToFavQuoteList(Context context, Quote quoteData) {
+        FavDatabaseHelper favDatabaseHelper = FavDatabaseHelper.getInstance(context);
+        int id = (int) favDatabaseHelper.getRowCount();
+        Log.d("MainActivity", "Inserting FavQuote " + id);
+        favDatabaseHelper.addFavQuote(id, quoteData);
+        Toast.makeText(context, "Added to Favorites", Toast.LENGTH_SHORT).show();
     }
 
 

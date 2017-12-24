@@ -71,7 +71,7 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
             starQuoteView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    new GibQuoteFragment().addToFavQuoteList(context, quoteList.get(getAdapterPosition()));
+                    MainActivity.addToFavQuoteList(context, quoteList.get(getAdapterPosition()));
                     starQuoteView.setImageResource(R.drawable.star_on);
                     starQuoteView.setEnabled(false);
                 }

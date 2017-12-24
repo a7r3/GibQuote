@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
-        <ListPreference
-            android:key="THEME_KEY"
-            android:title="Theme"
-            android:entries="@array/theme_strings"
-            android:entryValues="@array/theme_values"
-            android:defaultValue="0"
-            android:icon="@drawable/ic_style_black_24dp"
-            android:summary="Select the base theme"/>
+    <ListPreference
+        android:defaultValue="0"
+        android:entries="@array/theme_strings"
+        android:entryValues="@array/theme_values"
+        android:icon="@drawable/ic_style_black_24dp"
+        android:key="THEME_KEY"
+        android:summary="Select the base theme"
+        android:title="Theme" />
 
-        <CheckBoxPreference
-            android:key="FRAG_SWITCHER_KEY"
-            android:title="Use BottomBar as Switcher"
-            android:defaultValue="false"
-            android:iconSpaceReserved="true"
-            android:summary="Current Switcher: Navigation Drawer"
-            />
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:iconSpaceReserved="true"
+        android:key="FRAG_SWITCHER_KEY"
+        android:summary="Current Switcher: Navigation Drawer"
+        android:title="Use BottomBar as Switcher" />
 
 </PreferenceScreen>

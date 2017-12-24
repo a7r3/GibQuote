@@ -1,10 +1,15 @@
 package com.arvind.quote.fragment;
 
+import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -12,6 +17,8 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.os.BuildCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -31,6 +38,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.arvind.quote.MainActivity;
+import com.arvind.quote.NotificationUtils;
 import com.arvind.quote.R;
 import com.arvind.quote.adapter.Quote;
 import com.arvind.quote.adapter.QuoteAdapter;
@@ -39,6 +47,7 @@ import com.arvind.quote.database.GibDatabaseHelper;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -317,6 +326,9 @@ public class GibQuoteFragment extends Fragment {
             quoteAdapter.notifyItemInserted(quoteArrayList.size());
             // Scroll the RecyclerView to given position, smoothly
             quoteRecyclerView.smoothScrollToPosition(quoteAdapter.getItemCount() - 1);
+            // Experimental! Do not uncomment xD
+            // MainActivity.notificationUtils.issueNotification(new Quote(quoteText, authorText));
+
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -407,13 +419,6 @@ public class GibQuoteFragment extends Fragment {
                 }).start();
     }
 
-    public void addToFavQuoteList(Context context, Quote quoteData) {
-        FavDatabaseHelper favDatabaseHelper = FavDatabaseHelper.getInstance(context);
-        int id = (int) favDatabaseHelper.getRowCount();
-        Log.d(TAG, "Inserting FavQuote " + id);
-        favDatabaseHelper.addFavQuote(id, quoteData);
-        Toast.makeText(context, "Added to Favorites", Toast.LENGTH_SHORT).show();
-    }
 
     @Override
     public void onSaveInstanceState(@NonNull Bundle outState) {

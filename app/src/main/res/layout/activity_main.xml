@@ -9,26 +9,26 @@
     <RelativeLayout
         android:id="@+id/root_layout"
         android:layout_width="match_parent"
-        android:background="@drawable/animation_list"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@drawable/animation_list">
 
         <android.support.v7.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/app_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="?attr/colorPrimary"
-            android:fitsSystemWindows="true"
             android:elevation="2dp"
+            android:fitsSystemWindows="true"
             android:minHeight="?attr/actionBarSize"
-            app:titleTextAppearance="@style/actionBarFontAppearance"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+            android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+            app:titleTextAppearance="@style/actionBarFontAppearance" />
 
         <FrameLayout
             android:id="@+id/frame_layout"
-            android:layout_below="@id/app_toolbar"
             android:layout_width="match_parent"
+            android:layout_height="match_parent"
             android:layout_above="@id/bottom_nav"
-            android:layout_height="match_parent"/>
+            android:layout_below="@id/app_toolbar" />
 
         <android.support.design.widget.BottomNavigationView
             android:id="@+id/bottom_nav"
@@ -36,10 +36,10 @@
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
             android:background="?colorPrimary"
+            app:elevation="2dp"
             app:itemIconTint="@color/bottom_nav_colors"
             app:itemTextColor="@color/bottom_nav_colors"
-            app:elevation="2dp"
-            app:menu="@menu/drawer_view"/>
+            app:menu="@menu/drawer_view" />
 
     </RelativeLayout>
 
@@ -48,8 +48,8 @@
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
         android:layout_gravity="start"
-        android:fitsSystemWindows="true"
         android:background="@color/cardview_light_background"
+        android:fitsSystemWindows="true"
         app:headerLayout="@layout/navigation_drawer_view"
         app:menu="@menu/drawer_view" />
 

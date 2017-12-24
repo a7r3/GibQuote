@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Quote View Skeleton for RecyclerView -->
+<?xml version="1.0" encoding="utf-8"?><!-- Quote View Skeleton for RecyclerView -->
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/quote_view"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:clickable="true"
     android:background="?selectableItemBackground"
+    android:clickable="true"
     android:focusable="true">
 
     <ImageView
@@ -16,17 +15,17 @@
         android:layout_marginRight="16dp"
         android:layout_marginTop="16dp"
         android:background="@drawable/star"
-        android:src="@drawable/star_off"
-        android:padding="8dp"/>
+        android:padding="8dp"
+        android:src="@drawable/star_off" />
 
     <TextView
         android:id="@+id/quote_text_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/star_quote_button"
-        android:paddingTop="16dp"
-        android:paddingRight="8dp"
         android:paddingBottom="8dp"
+        android:paddingRight="8dp"
+        android:paddingTop="16dp"
         android:text="NULL Life for the Win"
         android:textSize="18sp" />
 
