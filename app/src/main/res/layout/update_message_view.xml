@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView android:id="@+id/update_message"
-    android:layout_width="match_parent"
+<ScrollView android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingLeft="24dp"
-    android:textSize="18sp"
-    xmlns:android="http://schemas.android.com/apk/res/android" />
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView android:id="@+id/update_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp"
+        android:textSize="18sp" />
+
+</ScrollView>
