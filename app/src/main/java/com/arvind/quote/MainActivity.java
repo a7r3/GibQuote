@@ -1,8 +1,10 @@
 package com.arvind.quote;
 
+import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.VoiceInteractor;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -246,32 +248,27 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 break;
         }
 
-        JsonObjectRequest latestTagRequest = new JsonObjectRequest(
-                Request.Method.GET,
-                "https://api.github.com/repos/a7r3/GibQuote/git/refs/tags",
-                null,
-                new Response.Listener<JSONObject>() {
-                    @Override
-                    public void onResponse(JSONObject response) {
-                        try {
-                            Log.d(TAG, new JSONArray(response.toString())
-                                    .getJSONObject(response.length())
-                                    .getJSONArray("objects").toString());
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-                ,
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.d(TAG, "you missed me");
-                    }
-                }
-        );
+        UpdaterUtils updaterUtils = new UpdaterUtils(this);
 
-        requestQueue.add(latestTagRequest);
+        if(updaterUtils.isUpdateAvailable()) {
+            String changeLog = updaterUtils.getChangeLogMessage().toString();
+            AlertDialog.Builder updateAlertDialog = new AlertDialog.Builder(this, themeId);
+            updateAlertDialog.setTitle("Update Available");
+            updateAlertDialog.setMessage(changeLog);
+            updateAlertDialog.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Toast.makeText(getApplicationContext(), "Work in Progress", Toast.LENGTH_LONG).show();
+                }
+            });
+            updateAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    Toast.makeText(getApplicationContext(), "Y tho :(", Toast.LENGTH_LONG).show();
+                }
+            });
+            updateAlertDialog.show();
+        }
 
         try {
             Log.d(TAG, "Creating new Fragment Instance");

@@ -35,8 +35,11 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
+import com.arvind.quote.BuildConfig;
 import com.arvind.quote.MainActivity;
 import com.arvind.quote.NotificationUtils;
 import com.arvind.quote.R;
@@ -63,6 +66,7 @@ public class GibQuoteFragment extends Fragment {
 
     private RequestQueue requestQueue;
 
+    private StringBuilder changeLogMessage = new StringBuilder();
     // QuoteProvider Details
     private String quoteProvider;
     private String quoteUrl;
