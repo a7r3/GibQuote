@@ -34,7 +34,7 @@
         </item>
         <item name="fab_icon_color">#FFFFFFFF</item>
         <item name="style_icon_color">#FF000000</item>
-        <item name="icon_color">#FFFFFFFF</item>
+        <item name="icon_color">#FF000000</item>
     </style>
 
     <style name="someStyle">
@@ -116,4 +116,5 @@
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
     </style>
+
 </resources>

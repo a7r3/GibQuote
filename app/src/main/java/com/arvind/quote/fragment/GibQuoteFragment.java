@@ -1,15 +1,12 @@
 package com.arvind.quote.fragment;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -17,8 +14,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.os.BuildCompat;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -29,28 +24,25 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.JsonRequest;
 import com.android.volley.toolbox.Volley;
-import com.arvind.quote.BuildConfig;
 import com.arvind.quote.MainActivity;
-import com.arvind.quote.NotificationUtils;
 import com.arvind.quote.R;
 import com.arvind.quote.adapter.Quote;
 import com.arvind.quote.adapter.QuoteAdapter;
-import com.arvind.quote.database.FavDatabaseHelper;
 import com.arvind.quote.database.GibDatabaseHelper;
+import com.arvind.quote.utils.NotificationUtils;
+import com.arvind.quote.utils.UpdaterUtils;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
 
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
@@ -65,6 +57,9 @@ public class GibQuoteFragment extends Fragment {
     private RecyclerView quoteRecyclerView;
 
     private RequestQueue requestQueue;
+    private TextView updateMessage;
+
+    private AlertDialog.Builder updateAlertDialog;
 
     private StringBuilder changeLogMessage = new StringBuilder();
     // QuoteProvider Details
@@ -72,6 +67,8 @@ public class GibQuoteFragment extends Fragment {
     private String quoteUrl;
     private String quoteTextVarName;
     private String quoteAuthorVarName;
+
+    private View updateMessageLayout;
 
     private SharedPreferences sharedPreferences;
 
@@ -245,6 +242,53 @@ public class GibQuoteFragment extends Fragment {
         providerArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         providerSpinner.setAdapter(providerArrayAdapter);
 
+        UpdaterUtils updaterUtils = new UpdaterUtils(getContext());
+
+        updateMessageLayout = getLayoutInflater().inflate(R.layout.update_message_view, container, false);
+
+        updateMessage = updateMessageLayout.findViewById(R.id.update_message);
+
+        updaterUtils.setChangeLogMessageListener(new UpdaterUtils.ChangeLog() {
+            @Override
+            public void onChange(String newChangeLog) {
+                Log.d(TAG, "Update Message Changed");
+                updateMessage.setText(newChangeLog);
+                Log.d(TAG, "New: " + newChangeLog);
+            }
+        });
+
+        // Set a listener for the boolean 'isUpdateAvailable'
+        // It is set to true when an update is available
+        // On changingm the code under onChange is executed
+        updaterUtils.setUpdateAvailableListener(new UpdaterUtils.UpdateAvailable() {
+            @Override
+            public void onChange(boolean isUpdateAvailable) {
+                if (isUpdateAvailable) {
+                    // Construkt the AlertDialog
+                    updateAlertDialog = new AlertDialog.Builder(getContext());
+                    updateAlertDialog.setTitle("Update");
+                    updateAlertDialog.setIcon(R.drawable.ic_fiber_new_black_24dp);
+                    // Set the TextView as AlertDialog's view
+                    // this view would contain the update message
+                    updateAlertDialog.setView(updateMessageLayout);
+                    updateAlertDialog.setCancelable(false);
+                    updateAlertDialog.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Toast.makeText(getContext(), "Work in Progress", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    updateAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            Toast.makeText(getContext(), "Y tho :(", Toast.LENGTH_LONG).show();
+                        }
+                    });
+                    updateAlertDialog.create().show();
+                }
+            }
+        });
+
         return view;
     }
 
@@ -331,7 +375,7 @@ public class GibQuoteFragment extends Fragment {
             // Scroll the RecyclerView to given position, smoothly
             quoteRecyclerView.smoothScrollToPosition(quoteAdapter.getItemCount() - 1);
             // Experimental! Do not uncomment xD
-            // MainActivity.notificationUtils.issueNotification(new Quote(quoteText, authorText));
+            // NotificationUtils.getInstance(getContext()).issueNotification(new Quote(quoteText, authorText));
 
         } catch (Exception e) {
             e.printStackTrace();

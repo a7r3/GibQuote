@@ -1,10 +1,6 @@
 package com.arvind.quote;
 
-import android.app.AlertDialog;
-import android.app.PendingIntent;
-import android.app.VoiceInteractor;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
@@ -30,46 +26,34 @@ import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
 import com.arvind.quote.adapter.Quote;
 import com.arvind.quote.database.FavDatabaseHelper;
 import com.arvind.quote.fragment.FavQuoteFragment;
 import com.arvind.quote.fragment.GibQuoteFragment;
 import com.arvind.quote.fragment.SettingsFragment;
+import com.arvind.quote.utils.NotificationUtils;
 import com.mikepenz.aboutlibraries.LibsBuilder;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
 
+    public NotificationUtils notificationUtils;
     // ActionBar for the App
     private static ActionBar actionBar;
     // Who am I ?
     private final String TAG = "MainActivity";
     // Layout under which fragments would reside
     private DrawerLayout drawerLayout;
-
     // Provides toggling action to open the Navigation Drawer
     // Tha Hamburger thingy
     private ActionBarDrawerToggle drawerToggle;
-
     // Application's Shared Preferences
     private SharedPreferences sharedPreferences;
-
     // Theme ID - from styles.xml
     private int themeId = R.style.AppTheme;
-
     // Keep track of previous selected Drawer Item
     // to make sure the same fragment isn't instantiated again
     private MenuItem previousItem;
-
     private BottomNavigationView bottomNavigationView;
 
     // Required by Fragments to ...
@@ -80,14 +64,30 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         }
     }
 
-    public static NotificationUtils notificationUtils;
-
-    public static NotificationUtils getNotificationUtils(Context context) {
-        return notificationUtils;
+    /* Allows the user to share currently displayed quote */
+    public static void shareQuote(Context context, Quote quote) {
+        Log.d("MainActivity", "Creating Share Intent");
+        // My intention is to send (throw) a piece of Text (ball)
+        Intent quoteIntent = new Intent(Intent.ACTION_SEND);
+        // Piece of Text (the Ball)
+        String quoteMessage = quote.getQuoteText() + "\n\n-- " + quote.getAuthorText();
+        // Specify the Text to be thrown
+        quoteIntent.putExtra(Intent.EXTRA_TEXT, quoteMessage);
+        // Specify the MIME type of the object to be thrown
+        quoteIntent.setType("text/plain");
+        // Send an Acknowledgement
+        Toast.makeText(context, "Select an App to GibQuote", Toast.LENGTH_SHORT).show();
+        // Throw the Ball!
+        context.startActivity(Intent.createChooser(quoteIntent, "Share this Quote"));
     }
 
-    private RequestQueue requestQueue;
-    private boolean isTagRequestSuccessful = false;
+    public static void addToFavQuoteList(Context context, Quote quoteData) {
+        FavDatabaseHelper favDatabaseHelper = FavDatabaseHelper.getInstance(context);
+        int id = (int) favDatabaseHelper.getRowCount();
+        Log.d("MainActivity", "Inserting FavQuote " + id);
+        favDatabaseHelper.addFavQuote(id, quoteData);
+        Toast.makeText(context, "Added to Favorites", Toast.LENGTH_SHORT).show();
+    }
 
     @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
@@ -194,14 +194,15 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 if (previousItem != item) {
                     switchFragment(item);
                     previousItem = item;
-                }return true;
+                }
+                return true;
             }
         });
 
         bottomNavigationView.getMenu().getItem(0).setChecked(true);
 
         boolean isBottomNavEnabled = sharedPreferences.getBoolean("FRAG_SWITCHER_KEY", false);
-        if(isBottomNavEnabled) {
+        if (isBottomNavEnabled) {
             bottomNavigationView.setVisibility(View.VISIBLE);
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             drawerToggle.setDrawerIndicatorEnabled(false);
@@ -213,9 +214,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         }
 
-        // Static instance of notificationUtils
-        // To be used everywhere, don't create new Instances
-        notificationUtils = new NotificationUtils(this);
+        notificationUtils = NotificationUtils.getInstance(this);
     }
 
     public void switchFragment(MenuItem item) {
@@ -247,29 +246,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 fragment = new GibQuoteFragment();
                 break;
         }
-
-        UpdaterUtils updaterUtils = new UpdaterUtils(this);
-
-        if(updaterUtils.isUpdateAvailable()) {
-            String changeLog = updaterUtils.getChangeLogMessage().toString();
-            AlertDialog.Builder updateAlertDialog = new AlertDialog.Builder(this, themeId);
-            updateAlertDialog.setTitle("Update Available");
-            updateAlertDialog.setMessage(changeLog);
-            updateAlertDialog.setPositiveButton("Update", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    Toast.makeText(getApplicationContext(), "Work in Progress", Toast.LENGTH_LONG).show();
-                }
-            });
-            updateAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    Toast.makeText(getApplicationContext(), "Y tho :(", Toast.LENGTH_LONG).show();
-                }
-            });
-            updateAlertDialog.show();
-        }
-
         try {
             Log.d(TAG, "Creating new Fragment Instance");
             getSupportFragmentManager()
@@ -280,6 +256,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
     @Override
@@ -315,32 +292,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     @Override
     protected void onDestroy() {
         super.onDestroy();
-    }
-
-    /* Allows the user to share currently displayed quote */
-    public static void shareQuote(Context context, Quote quote) {
-        Log.d("MainActivity", "Creating Share Intent");
-        // My intention is to send (throw) a piece of Text (ball)
-        Intent quoteIntent = new Intent(Intent.ACTION_SEND);
-        // Piece of Text (the Ball)
-        String quoteMessage = quote.getQuoteText() + "\n\n-- " + quote.getAuthorText();
-        // Specify the Text to be thrown
-        quoteIntent.putExtra(Intent.EXTRA_TEXT, quoteMessage);
-        // Specify the MIME type of the object to be thrown
-        quoteIntent.setType("text/plain");
-        // Send an Acknowledgement
-        Toast.makeText(context, "Select an App to GibQuote", Toast.LENGTH_SHORT).show();
-        // Throw the Ball!
-        context.startActivity(Intent.createChooser(quoteIntent, "Share this Quote"));
-    }
-
-
-    public static void addToFavQuoteList(Context context, Quote quoteData) {
-        FavDatabaseHelper favDatabaseHelper = FavDatabaseHelper.getInstance(context);
-        int id = (int) favDatabaseHelper.getRowCount();
-        Log.d("MainActivity", "Inserting FavQuote " + id);
-        favDatabaseHelper.addFavQuote(id, quoteData);
-        Toast.makeText(context, "Added to Favorites", Toast.LENGTH_SHORT).show();
     }
 
 

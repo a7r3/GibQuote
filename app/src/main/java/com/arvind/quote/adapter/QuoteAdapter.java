@@ -10,7 +10,6 @@ import android.widget.TextView;
 
 import com.arvind.quote.MainActivity;
 import com.arvind.quote.R;
-import com.arvind.quote.fragment.GibQuoteFragment;
 
 import java.util.List;
 

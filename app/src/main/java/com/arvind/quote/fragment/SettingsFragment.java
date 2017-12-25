@@ -7,7 +7,6 @@ import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v7.preference.CheckBoxPreference;
 import android.support.v7.preference.ListPreference;
-import android.support.v7.preference.PreferenceManager;
 
 import com.arvind.quote.MainActivity;
 import com.arvind.quote.R;
@@ -20,6 +19,8 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers {
 
     // Listen for changes in a SharedPreference
     private SharedPreferences.OnSharedPreferenceChangeListener listener;
+    private ListPreference themePreference;
+    private CheckBoxPreference fragSwitcherPreference;
 
     private String getThemeSummary() {
         String themeKey = sharedPreferences.getString("THEME_KEY", "light");
@@ -32,10 +33,6 @@ public class SettingsFragment extends PreferenceFragmentCompatDividers {
                 : "Navigation Drawer";
         return "Current: " + fragSwitcherSummary;
     }
-
-    private ListPreference themePreference;
-
-    private CheckBoxPreference fragSwitcherPreference;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {

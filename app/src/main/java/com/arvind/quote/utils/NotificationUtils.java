@@ -1,4 +1,4 @@
-package com.arvind.quote;
+package com.arvind.quote.utils;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -9,16 +9,21 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
+import com.arvind.quote.NotificationDialog;
+import com.arvind.quote.R;
 import com.arvind.quote.adapter.Quote;
 
 public class NotificationUtils {
-    
+
     private Context context;
     private int notificationId;
     private String channelId = "com.arvind.quote.QuoteNotifChannel";
     private NotificationManager notificationManager;
 
-    public NotificationUtils(Context context) {
+    // Static instance of Notification Utility
+    private static NotificationUtils notificationUtilsInstance;
+
+    private NotificationUtils(Context context) {
         this.context = context;
         notificationId = 1;
         notificationManager = (NotificationManager)
@@ -42,7 +47,15 @@ public class NotificationUtils {
         }
 
     }
-    
+
+    // Make sure that we get a single Notification Utility instance throughout
+    // the Application (Singleton Instance they said)
+    public static synchronized NotificationUtils getInstance(Context context) {
+        if(notificationUtilsInstance == null)
+            notificationUtilsInstance = new NotificationUtils(context);
+        return notificationUtilsInstance;
+    }
+
     public void issueNotification(Quote quote) {
         String quoteText = quote.getQuoteText();
         String authorText = quote.getAuthorText();
@@ -71,8 +84,8 @@ public class NotificationUtils {
                 .setTicker("Random Quote of the day, for you")
                 .setAutoCancel(true)
                 .setContentIntent(pendingIntent);
-       if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-                notif.setColor(context.getResources().getColor(R.color.colorPrimary, context.getTheme()));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            notif.setColor(context.getResources().getColor(R.color.colorPrimary, context.getTheme()));
         notificationManager.notify(notificationId++, notif.build());
     }
 }

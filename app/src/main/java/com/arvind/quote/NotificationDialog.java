@@ -1,15 +1,10 @@
 package com.arvind.quote;
 
 import android.app.Activity;
-import android.app.Dialog;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.arvind.quote.adapter.Quote;
@@ -19,6 +14,7 @@ public class NotificationDialog extends Activity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Get quoteText, and authorText from the Intent
         final String quoteText = getIntent().getStringExtra("quoteText");
         final String authorText = getIntent().getStringExtra("authorText");
 
