@@ -22,6 +22,7 @@ public class UpdaterUtils {
     private String TAG = "UpdaterUtils";
 
     private String currentVersion;
+    private String updatedVersion;
 
     private String interTagUrl;
     private RequestQueue requestQueue;
@@ -49,6 +50,10 @@ public class UpdaterUtils {
         requestQueue = Volley.newRequestQueue(context);
         // Method to check for updates
         checkForUpdates();
+    }
+
+    public String getUpdatedVersion() {
+        return updatedVersion;
     }
 
     //////////////////////
@@ -101,8 +106,14 @@ public class UpdaterUtils {
                     @Override
                     public void onResponse(JSONArray response) {
                         try {
+                            updatedVersion = response
+                                    .getJSONObject(response.length() -1)
+                                    .getString("ref")
+                                    .replaceAll(".*/", "");
+
                             // Get Position of currentVersion Tag in the tags List
                             int currentVersionPosition;
+
                             for (currentVersionPosition = 0; currentVersionPosition < response.length(); currentVersionPosition++) {
                                 String interVersion = response
                                         .getJSONObject(currentVersionPosition)

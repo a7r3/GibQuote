@@ -1,19 +1,26 @@
 package com.arvind.quote.fragment;
 
 import android.app.AlertDialog;
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -38,7 +45,6 @@ import com.arvind.quote.R;
 import com.arvind.quote.adapter.Quote;
 import com.arvind.quote.adapter.QuoteAdapter;
 import com.arvind.quote.database.GibDatabaseHelper;
-import com.arvind.quote.utils.NotificationUtils;
 import com.arvind.quote.utils.UpdaterUtils;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
@@ -58,10 +64,10 @@ public class GibQuoteFragment extends Fragment {
 
     private RequestQueue requestQueue;
     private TextView updateMessage;
+    private UpdaterUtils updaterUtils;
 
     private AlertDialog.Builder updateAlertDialog;
 
-    private StringBuilder changeLogMessage = new StringBuilder();
     // QuoteProvider Details
     private String quoteProvider;
     private String quoteUrl;
@@ -242,7 +248,7 @@ public class GibQuoteFragment extends Fragment {
         providerArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         providerSpinner.setAdapter(providerArrayAdapter);
 
-        UpdaterUtils updaterUtils = new UpdaterUtils(getContext());
+        updaterUtils = new UpdaterUtils(getContext());
 
         updateMessageLayout = getLayoutInflater().inflate(R.layout.update_message_view, container, false);
 
@@ -275,13 +281,13 @@ public class GibQuoteFragment extends Fragment {
                     updateAlertDialog.setPositiveButton("Update", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            Toast.makeText(getContext(), "Work in Progress", Toast.LENGTH_LONG).show();
+                            updateApplication(updaterUtils.getUpdatedVersion());
                         }
                     });
                     updateAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialogInterface, int i) {
-                            Toast.makeText(getContext(), "Y tho :(", Toast.LENGTH_LONG).show();
+                            Toast.makeText(getContext(), "Bugs Bro Bugs", Toast.LENGTH_LONG).show();
                         }
                     });
                     updateAlertDialog.create().show();
@@ -290,6 +296,42 @@ public class GibQuoteFragment extends Fragment {
         });
 
         return view;
+    }
+
+    public void updateApplication(String updatedVersion) {
+        // Download URL of newer APK
+        String downloadURL = "https://github.com/a7r3/GibQuote/releases/download/" + updatedVersion + "/app-debug.apk";
+        // Create a new DownloadManager request for this APK
+        DownloadManager.Request downloadRequest = new DownloadManager.Request(Uri.parse(downloadURL));
+        // Title, On the left side of Download Notification
+        downloadRequest.setTitle("GibQuote " + updatedVersion);
+        // Description, On the right side of Download Notification
+        downloadRequest.setDescription("Downloading Latest APK");
+        // It's an APK, so specify the MIME type
+        downloadRequest.setMimeType("application/vnd.android.package-archive");
+        // Show a notification that the download is complete, on completion
+        downloadRequest.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
+        // Download the APK only when on Wi-Fi or Mobile Data (without Metered Limits)
+        downloadRequest.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
+        // Directory where file would be saved
+        downloadRequest.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "GibQuote.apk");
+        // Get DownloadManager here
+        final DownloadManager downloadManager = (DownloadManager) getContext().getSystemService(Context.DOWNLOAD_SERVICE);
+        // Give this request to it
+        downloadManager.enqueue(downloadRequest);
+        // Tell the user that the file is being downloaded
+        // Yet to study BroadcastReceivers :P
+        final Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.drawer_layout),
+                "Update is being downloaded, tap on the downloaded file to install it",
+                Snackbar.LENGTH_INDEFINITE);
+        snackbar.setAction("OK", new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                snackbar.dismiss();
+            }
+        });
+        snackbar.show();
+        // TODO: BroadcastReceiver && Invoke PackageInstaler after file is downloaded
     }
 
     // Method to change JSON parameters based on the quoteProvider selected

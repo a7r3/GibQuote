@@ -1,8 +1,11 @@
 package com.arvind.quote;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.drawable.AnimationDrawable;
 import android.os.Bundle;
@@ -11,11 +14,15 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
@@ -35,7 +42,7 @@ import com.arvind.quote.fragment.SettingsFragment;
 import com.arvind.quote.utils.NotificationUtils;
 import com.mikepenz.aboutlibraries.LibsBuilder;
 
-public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback {
+public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback, ActivityCompat.OnRequestPermissionsResultCallback {
 
     public NotificationUtils notificationUtils;
     // ActionBar for the App
@@ -55,6 +62,34 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     // to make sure the same fragment isn't instantiated again
     private MenuItem previousItem;
     private BottomNavigationView bottomNavigationView;
+
+    // Callback value
+    // This would be used to check which set of permissions were asked
+    // This is of Storage
+    private int REQUEST_WRITE_EXTERNAL_STORAGE = 10;
+
+    private String[] requiredPerms = {
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // If the granted permission was related to Storage
+        if(requestCode == REQUEST_WRITE_EXTERNAL_STORAGE) {
+            // If there are non-zero grants, and We've got Permission for Storage (there's just one perm)
+            if(grantResults.length == 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Yay
+                Log.d(TAG, "Storage Permission Granted");
+                Snackbar.make(findViewById(R.id.root_layout),
+                        "Storage Permission Granted",
+                        Snackbar.LENGTH_SHORT).show();
+            } else {
+                Log.d(TAG, "Storage permission NOT Granted");
+                // Nothing to do here, yet | We can disable update checks, later
+            }
+        }
+    }
 
     // Required by Fragments to ...
     // Set ActionBar's title
@@ -118,7 +153,33 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
         // Set Activity theme
         setTheme(themeId);
+
         setContentView(R.layout.activity_main);
+
+        // If WRITE_EXTERNAL_STORAGE permisson is not granted
+        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            // If the user has to be provided a reason to grant a permission
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                // then show the reason
+                Snackbar.make(findViewById(R.id.root_layout),
+                        "GibQuote requires the storage permission for installing Updates",
+                        Snackbar.LENGTH_INDEFINITE)
+                        // On Approval, get the Permission Dialog
+                        .setAction("OK", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                ActivityCompat.requestPermissions(MainActivity.this,
+                                        requiredPerms,
+                                        REQUEST_WRITE_EXTERNAL_STORAGE);
+                            }
+                        }).show();
+            } else {
+                // No reason to be provided, ask directly
+                ActivityCompat.requestPermissions(this,
+                        requiredPerms,
+                        REQUEST_WRITE_EXTERNAL_STORAGE);
+            }
+        }
 
         NavigationView navigationView = findViewById(R.id.nav_bar_view);
 
