@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <ListPreference
         android:defaultValue="0"
@@ -12,9 +13,17 @@
 
     <CheckBoxPreference
         android:defaultValue="false"
-        android:iconSpaceReserved="true"
         android:key="FRAG_SWITCHER_KEY"
         android:summary="Current Switcher: Navigation Drawer"
         android:title="Use BottomBar as Switcher" />
+
+        <TimePickerPreference
+            android:key="QOTD_TIME"
+            android:persistent="false"
+            android:summary="Select when your Quote has to appear"
+            android:title="Set time for QoTD"
+            app:pref_hourFormat="auto"
+            app:pref_pickerTime="10:10"
+            app:pref_summaryHasTime="QoTD will appear daily at %s" />
 
 </PreferenceScreen>

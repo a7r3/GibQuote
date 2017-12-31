@@ -30,25 +30,28 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.RequestQueue;
 import com.arvind.quote.adapter.Quote;
 import com.arvind.quote.database.FavDatabaseHelper;
 import com.arvind.quote.fragment.FavQuoteFragment;
 import com.arvind.quote.fragment.GibQuoteFragment;
 import com.arvind.quote.fragment.SettingsFragment;
 import com.arvind.quote.utils.NotificationUtils;
+import com.arvind.quote.utils.UpdaterUtils;
 import com.mikepenz.aboutlibraries.LibsBuilder;
 
 public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback, ActivityCompat.OnRequestPermissionsResultCallback {
 
-    public NotificationUtils notificationUtils;
     // ActionBar for the App
     private static ActionBar actionBar;
     // Who am I ?
     private final String TAG = "MainActivity";
+    public NotificationUtils notificationUtils;
     // Layout under which fragments would reside
     private DrawerLayout drawerLayout;
     // Provides toggling action to open the Navigation Drawer
@@ -63,33 +66,24 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     private MenuItem previousItem;
     private BottomNavigationView bottomNavigationView;
 
+    // Updater Instance
+    private UpdaterUtils updaterUtils;
+    // AlertDialog in which UpdaterStuff would be shown
+    private AlertDialog.Builder updateAlertDialog;
+    // The Layout which contains the ProgressBar, and updateMessage TextView
+    private View updateMessageLayout;
+    // View in which update message would be shown
+    private TextView updateMessage;
+    private LinearLayout progressLayout;
+
     // Callback value
     // This would be used to check which set of permissions were asked
     // This is of Storage
     private int REQUEST_WRITE_EXTERNAL_STORAGE = 10;
 
     private String[] requiredPerms = {
-        Manifest.permission.WRITE_EXTERNAL_STORAGE
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        // If the granted permission was related to Storage
-        if(requestCode == REQUEST_WRITE_EXTERNAL_STORAGE) {
-            // If there are non-zero grants, and We've got Permission for Storage (there's just one perm)
-            if(grantResults.length == 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Yay
-                Log.d(TAG, "Storage Permission Granted");
-                Snackbar.make(findViewById(R.id.root_layout),
-                        "Storage Permission Granted",
-                        Snackbar.LENGTH_SHORT).show();
-            } else {
-                Log.d(TAG, "Storage permission NOT Granted");
-                // Nothing to do here, yet | We can disable update checks, later
-            }
-        }
-    }
 
     // Required by Fragments to ...
     // Set ActionBar's title
@@ -125,6 +119,25 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // If the granted permission was related to Storage
+        if (requestCode == REQUEST_WRITE_EXTERNAL_STORAGE) {
+            // If there are non-zero grants, and We've got Permission for Storage (there's just one perm)
+            if (grantResults.length == 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Yay
+                Log.d(TAG, "Storage Permission Granted");
+                Snackbar.make(findViewById(R.id.root_layout),
+                        "Storage Permission Granted",
+                        Snackbar.LENGTH_SHORT).show();
+            } else {
+                Log.d(TAG, "Storage permission NOT Granted");
+                // Nothing to do here, yet | We can disable update checks, later
+            }
+        }
+    }
+
+    @Override
     protected void onCreate(@Nullable final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
@@ -157,9 +170,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         setContentView(R.layout.activity_main);
 
         // If WRITE_EXTERNAL_STORAGE permisson is not granted
-        if(ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             // If the user has to be provided a reason to grant a permission
-            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 // then show the reason
                 Snackbar.make(findViewById(R.id.root_layout),
                         "GibQuote requires the storage permission for installing Updates",
@@ -275,21 +288,96 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         }
 
-        notificationUtils = NotificationUtils.getInstance(this);
+        // UpdaterUtils Instance
+        // Checks for Updates - Uses GitHub Releases/Tags System with GitHub API v3
+        updaterUtils = new UpdaterUtils(this.getApplicationContext(), this);
+        // The Layout which contains the updateMessage TextView
+        updateMessageLayout = getLayoutInflater().inflate(R.layout.update_message_view, rootLayout, false);
+        // Get the updateMessage TextView
+        updateMessage = updateMessageLayout.findViewById(R.id.update_message);
+        progressLayout = updateMessageLayout.findViewById(R.id.progress_view);
+
+        // Set a listener for the boolean 'isUpdateAvailable'
+        // It is set to true when an update is available
+        updaterUtils.setUpdateAvailableListener(new UpdaterUtils.UpdateAvailable() {
+            @Override
+            public void onUpdateAvailable() {
+                // Construkt the AlertDialog
+                updateAlertDialog = new AlertDialog.Builder(MainActivity.this);
+                // Set the TextView as AlertDialog's view
+                // this view would contain the update message
+                updateAlertDialog.setView(updateMessageLayout);
+                updateAlertDialog.setTitle("Update : " + updaterUtils.getUpdatedVersion());
+                updateAlertDialog.setIcon(R.drawable.ic_fiber_new_black_24dp);
+
+                final ProgressBar progressBar = updateMessageLayout.findViewById(R.id.progressBar);
+                progressLayout.setVisibility(View.VISIBLE);
+                progressBar.setIndeterminate(true);
+                updateMessage.setVisibility(View.GONE);
+
+                // Make it non-cancelable
+                // It can be cancelled only by pressing the Negative Button
+                updateAlertDialog.setCancelable(false);
+
+                updateAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        Toast.makeText(MainActivity.this, "Bugs Bro Bugs", Toast.LENGTH_LONG).show();
+                    }
+                });
+
+                updateAlertDialog.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        // Tell the user that we're updating
+                        final Snackbar snackbar = Snackbar.make(MainActivity.this.findViewById(R.id.drawer_layout),
+                                "Update is being downloaded",
+                                Snackbar.LENGTH_INDEFINITE);
+                        snackbar.setAction("OK", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                snackbar.dismiss();
+                            }
+                        });
+                        snackbar.show();
+                        // Magic.show()
+                        updaterUtils.updateApplication(sharedPreferences);
+                    }
+                });
+
+                updateAlertDialog.create().show();
+
+                updaterUtils.setMessageRequestListener(new UpdaterUtils.MessageRequest() {
+                    @Override
+                    public void onMessageFetchComplete() {
+                        progressBar.setIndeterminate(false);
+                        progressLayout.setVisibility(View.GONE);
+                        updateMessage.setVisibility(View.VISIBLE);
+                        // Play with the Message
+                        String[] changeLog = updaterUtils.getChangeLogMessage();
+                        StringBuilder stringBuilder = new StringBuilder();
+                        for (int i = changeLog.length - 1; i >= 0; i--)
+                            stringBuilder.append(changeLog[i]);
+                        updateMessage.setText(stringBuilder);
+                    }
+                });
+
+            }
+        });
+
     }
 
     public void switchFragment(MenuItem item) {
         Fragment fragment;
-
         switch (item.getItemId()) {
             case R.id.gib_quotes_item:
                 fragment = new GibQuoteFragment();
                 break;
-            case R.id.settings_item:
+            case R.id.preferences_item:
                 fragment = new SettingsFragment();
                 break;
-            case R.id.about_item:
-                setActionBarTitle("About");
+            case R.id.licenses_item:
+                setActionBarTitle("Licenses");
                 // Creating AboutLibraries' Fragment :D
                 fragment = new LibsBuilder()
                         .withAboutAppName(getResources().getString(R.string.app_name))
@@ -308,7 +396,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 break;
         }
         try {
-            Log.d(TAG, "Creating new Fragment Instance");
+            Log.d(TAG, "Switching to Fragment : " + fragment.getClass().getSimpleName());
             getSupportFragmentManager()
                     .beginTransaction()
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
@@ -317,7 +405,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         } catch (Exception e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
@@ -353,7 +440,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        // Unregister the broadcast receiver
+        updaterUtils.unregisterDownloadReceiver();
     }
-
-
 }

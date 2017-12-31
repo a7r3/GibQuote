@@ -1,26 +1,18 @@
 package com.arvind.quote.fragment;
 
-import android.app.AlertDialog;
-import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -31,7 +23,6 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -45,9 +36,10 @@ import com.arvind.quote.R;
 import com.arvind.quote.adapter.Quote;
 import com.arvind.quote.adapter.QuoteAdapter;
 import com.arvind.quote.database.GibDatabaseHelper;
-import com.arvind.quote.utils.UpdaterUtils;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 import org.json.JSONObject;
 
@@ -58,23 +50,18 @@ public class GibQuoteFragment extends Fragment {
 
     private String TAG = "GibQuoteFragment";
 
+    // Quote Fetching Stuff
     private ArrayList<Quote> quoteArrayList = new ArrayList<>();
     private QuoteAdapter quoteAdapter;
     private RecyclerView quoteRecyclerView;
-
     private RequestQueue requestQueue;
-    private TextView updateMessage;
-    private UpdaterUtils updaterUtils;
 
-    private AlertDialog.Builder updateAlertDialog;
 
     // QuoteProvider Details
     private String quoteProvider;
     private String quoteUrl;
     private String quoteTextVarName;
     private String quoteAuthorVarName;
-
-    private View updateMessageLayout;
 
     private SharedPreferences sharedPreferences;
 
@@ -83,27 +70,28 @@ public class GibQuoteFragment extends Fragment {
 
     private Context mContext;
 
+    @Nullable
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
+
+        View view = inflater.inflate(R.layout.gib_quote_fragment, container, false);
+
+        MainActivity.setActionBarTitle("GibQuote");
 
         mContext = getContext();
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
 
-        if (savedInstanceState != null) {
-            Log.d(TAG, "Restoring Instance state");
-            quoteArrayList = savedInstanceState.getParcelableArrayList("quoteData");
+        String quoteJson = sharedPreferences.getString("quoteData", "null");
+
+        if (!quoteJson.equals("null")) {
+            Log.d(TAG, "Restoring 'em Quotes");
+            quoteArrayList = new Gson().fromJson(quoteJson, new TypeToken<ArrayList<Quote>>() {
+            }.getType());
+        } else {
+            Log.d(TAG, "I wunt neu Quotes pls");
+            quoteArrayList = new ArrayList<>();
         }
-    }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-
-        View view = inflater.inflate(R.layout.gib_quote_fragment, container, false);
-
-        MainActivity.setActionBarTitle("GibQuote");
 
         // RequestQueue executes any number of requests, asynchronously
         // More of a Queue Manager for Volley
@@ -146,9 +134,8 @@ public class GibQuoteFragment extends Fragment {
             quoteProviders = new String[]{"Offline", "Forismatic", "Talaikis", "Storm"};
         } else {
             Log.v(TAG, "DAM SON :(");
-            Snackbar.make(
-                    getActivity().findViewById(R.id.frame_layout),
-                    "No Internet Connection? We've got you covered",
+            Snackbar.make(getActivity().findViewById(R.id.frame_layout),
+                    "No Internet Connection? We've got some offline quotes!",
                     Snackbar.LENGTH_LONG).show();
             quoteProviders = new String[]{"Offline"};
         }
@@ -248,90 +235,7 @@ public class GibQuoteFragment extends Fragment {
         providerArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
         providerSpinner.setAdapter(providerArrayAdapter);
 
-        updaterUtils = new UpdaterUtils(getContext());
-
-        updateMessageLayout = getLayoutInflater().inflate(R.layout.update_message_view, container, false);
-
-        updateMessage = updateMessageLayout.findViewById(R.id.update_message);
-
-        updaterUtils.setChangeLogMessageListener(new UpdaterUtils.ChangeLog() {
-            @Override
-            public void onChange(String newChangeLog) {
-                Log.d(TAG, "Update Message Changed");
-                updateMessage.setText(newChangeLog);
-                Log.d(TAG, "New: " + newChangeLog);
-            }
-        });
-
-        // Set a listener for the boolean 'isUpdateAvailable'
-        // It is set to true when an update is available
-        // On changingm the code under onChange is executed
-        updaterUtils.setUpdateAvailableListener(new UpdaterUtils.UpdateAvailable() {
-            @Override
-            public void onChange(boolean isUpdateAvailable) {
-                if (isUpdateAvailable) {
-                    // Construkt the AlertDialog
-                    updateAlertDialog = new AlertDialog.Builder(getContext());
-                    updateAlertDialog.setTitle("Update");
-                    updateAlertDialog.setIcon(R.drawable.ic_fiber_new_black_24dp);
-                    // Set the TextView as AlertDialog's view
-                    // this view would contain the update message
-                    updateAlertDialog.setView(updateMessageLayout);
-                    updateAlertDialog.setCancelable(false);
-                    updateAlertDialog.setPositiveButton("Update", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            updateApplication(updaterUtils.getUpdatedVersion());
-                        }
-                    });
-                    updateAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialogInterface, int i) {
-                            Toast.makeText(getContext(), "Bugs Bro Bugs", Toast.LENGTH_LONG).show();
-                        }
-                    });
-                    updateAlertDialog.create().show();
-                }
-            }
-        });
-
         return view;
-    }
-
-    public void updateApplication(String updatedVersion) {
-        // Download URL of newer APK
-        String downloadURL = "https://github.com/a7r3/GibQuote/releases/download/" + updatedVersion + "/app-debug.apk";
-        // Create a new DownloadManager request for this APK
-        DownloadManager.Request downloadRequest = new DownloadManager.Request(Uri.parse(downloadURL));
-        // Title, On the left side of Download Notification
-        downloadRequest.setTitle("GibQuote " + updatedVersion);
-        // Description, On the right side of Download Notification
-        downloadRequest.setDescription("Downloading Latest APK");
-        // It's an APK, so specify the MIME type
-        downloadRequest.setMimeType("application/vnd.android.package-archive");
-        // Show a notification that the download is complete, on completion
-        downloadRequest.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED);
-        // Download the APK only when on Wi-Fi or Mobile Data (without Metered Limits)
-        downloadRequest.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE | DownloadManager.Request.NETWORK_WIFI);
-        // Directory where file would be saved
-        downloadRequest.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "GibQuote.apk");
-        // Get DownloadManager here
-        final DownloadManager downloadManager = (DownloadManager) getContext().getSystemService(Context.DOWNLOAD_SERVICE);
-        // Give this request to it
-        downloadManager.enqueue(downloadRequest);
-        // Tell the user that the file is being downloaded
-        // Yet to study BroadcastReceivers :P
-        final Snackbar snackbar = Snackbar.make(getActivity().findViewById(R.id.drawer_layout),
-                "Update is being downloaded, tap on the downloaded file to install it",
-                Snackbar.LENGTH_INDEFINITE);
-        snackbar.setAction("OK", new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                snackbar.dismiss();
-            }
-        });
-        snackbar.show();
-        // TODO: BroadcastReceiver && Invoke PackageInstaler after file is downloaded
     }
 
     // Method to change JSON parameters based on the quoteProvider selected
@@ -424,8 +328,7 @@ public class GibQuoteFragment extends Fragment {
         }
     }
 
-    /* To Check if we're connected to the Internet */
-    // TODO: Get isNetworkAvailable explained
+    // To Check if we're connected to the Internet
     private boolean isNetworkAvailable() {
         try {
             NetworkInfo activeNetworkInfo = null;
@@ -437,8 +340,8 @@ public class GibQuoteFragment extends Fragment {
             return activeNetworkInfo != null && activeNetworkInfo.isConnected();
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
         }
+        return false;
     }
 
     public void showIntroTapTargets(View view) {
@@ -509,17 +412,17 @@ public class GibQuoteFragment extends Fragment {
                 }).start();
     }
 
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        Log.d(TAG, "Saving Instance state");
-        outState.putParcelableArrayList("quoteData", quoteArrayList);
-    }
-
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         Log.d(TAG, "Fragment onDestroyView called");
+        // GSON can convert De-serialized Data (Java Objects) to Serialized Data (JSON) and vice-versa
+        // https://github.com/google/gson
+        String quoteJson = new Gson().toJson(quoteArrayList);
+        Log.d(TAG, "JSON: " + quoteJson);
+        // Save the serialized JSON String as a Preference
+        sharedPreferences.edit()
+                .putString("quoteData", quoteJson)
+                .apply();
     }
 }

@@ -11,13 +11,13 @@
             android:icon="@drawable/ic_star_black_24dp"
             android:title="Fav Quotes" />
         <item
-            android:id="@+id/settings_item"
+            android:id="@+id/preferences_item"
             android:icon="@drawable/ic_settings_black_24dp"
-            android:title="Settings" />
+            android:title="Preferences" />
         <item
-            android:id="@+id/about_item"
+            android:id="@+id/licenses_item"
             android:icon="@drawable/ic_info_outline_black_24dp"
-            android:title="About" />
+            android:title="Licenses" />
     </group>
 
 </menu>
