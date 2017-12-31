@@ -1,6 +1,5 @@
 package com.arvind.quote.fragment;
 
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;

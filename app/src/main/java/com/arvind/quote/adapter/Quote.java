@@ -10,20 +10,35 @@ public class Quote {
     private final String quoteText;
     private final String authorText;
     private int id;
+    private boolean isStarred;
 
     public Quote(int id, String quoteText, String authorText) {
         this.id = id;
         this.quoteText = quoteText;
         this.authorText = authorText;
+        this.isStarred = false;
     }
 
     public Quote(String quoteText, String authorText) {
         this.quoteText = quoteText;
         this.authorText = authorText;
+        this.isStarred = false;
+    }
+
+    public boolean isStarred() {
+        return isStarred;
+    }
+
+    public void setStarred(boolean starred) {
+        isStarred = starred;
     }
 
     public int getId() {
         return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getQuoteText() {

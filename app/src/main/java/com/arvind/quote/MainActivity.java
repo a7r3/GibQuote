@@ -110,12 +110,19 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         context.startActivity(Intent.createChooser(quoteIntent, "Share this Quote"));
     }
 
-    public static void addToFavQuoteList(Context context, Quote quoteData) {
+    public static int addToFavQuoteList(Context context, Quote quoteData) {
         FavDatabaseHelper favDatabaseHelper = FavDatabaseHelper.getInstance(context);
         int id = (int) favDatabaseHelper.getRowCount();
         Log.d("MainActivity", "Inserting FavQuote " + id);
         favDatabaseHelper.addFavQuote(id, quoteData);
         Toast.makeText(context, "Added to Favorites", Toast.LENGTH_SHORT).show();
+        return id;
+    }
+
+    public static void removeFromFavQuotesList(Context context, int id) {
+        FavDatabaseHelper favDatabaseHelper = FavDatabaseHelper.getInstance(context);
+        Log.d("MainActivity", "Removing FavQuote " + id);
+        favDatabaseHelper.removeFavQuote(id);
     }
 
     @Override

@@ -50,11 +50,25 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
     }
 
     @Override
+    public long getItemId(int position) {
+        // Return position right away
+        // This RecyclerView would have Stable IDs since
+        // The Nodes are just added, not removed
+        // Default Implementation returns -1 (NO_ID)
+        return position;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
+    }
+
+    @Override
     public int getItemCount() {
         return quoteList.size();
     }
 
-    public class QuoteViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
+    public class QuoteViewHolder extends RecyclerView.ViewHolder {
 
         final TextView quoteTextView;
         final TextView authorTextView;
@@ -70,19 +84,26 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
             starQuoteView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    MainActivity.addToFavQuoteList(context, quoteList.get(getAdapterPosition()));
-                    starQuoteView.setImageResource(R.drawable.star_on);
-                    starQuoteView.setEnabled(false);
+                    Quote selectedQuote = quoteList.get(getAdapterPosition());
+                    if (selectedQuote.isStarred()) {
+                        MainActivity.removeFromFavQuotesList(context, selectedQuote.getId());
+                        starQuoteView.setImageResource(R.drawable.star_off);
+                        selectedQuote.setStarred(false);
+                    } else {
+                        selectedQuote.setId(MainActivity.addToFavQuoteList(context, quoteList.get(getAdapterPosition())));
+                        starQuoteView.setImageResource(R.drawable.star_on);
+                        selectedQuote.setStarred(true);
+                    }
                 }
             });
 
-            itemView.setOnLongClickListener(this);
-        }
-
-        @Override
-        public boolean onLongClick(View v) {
-            new MainActivity().shareQuote(context, quoteList.get(getAdapterPosition()));
-            return true;
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    MainActivity.shareQuote(context, quoteList.get(getAdapterPosition()));
+                    return true;
+                }
+            });
         }
     }
 }
