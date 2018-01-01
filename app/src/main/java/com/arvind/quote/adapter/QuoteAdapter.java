@@ -85,7 +85,6 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
             authorTextView = itemView.findViewById(R.id.author_text_view);
 
             starQuoteView = itemView.findViewById(R.id.star_quote_button);
-
             starQuoteView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

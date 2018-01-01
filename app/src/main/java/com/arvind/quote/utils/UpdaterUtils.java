@@ -102,26 +102,24 @@ public class UpdaterUtils {
                                     .replaceAll(".*/", "");
 
                             // Variable to hold current Tag's position in the list of tags
-                            int currentVersionPosition;
+                            int currentVersionPosition = -1;
 
                             // Get Position of currentVersion Tag in the tags List
-                            String interVersion = null;
-                            for (currentVersionPosition = 0; currentVersionPosition < response.length(); currentVersionPosition++) {
-                                interVersion = response
-                                        .getJSONObject(currentVersionPosition)
+                            String interVersion[] = new String[response.length()];
+                            for(int i = 0; i < interVersion.length; i++) {
+                                interVersion[i] = response.getJSONObject(i)
                                         .getString("ref")
                                         .replaceAll(".*/", "");
-                                // If the intermediate version equals current, then break the loop
-                                if (interVersion.equals(currentVersion))
-                                    break;
+                                if(currentVersion.equals(interVersion[i]))
+                                    currentVersionPosition = i;
                             }
 
                             // If currentVersion is at the End, we're updated
-                            boolean isAtEnd = currentVersionPosition == response.length();
+                            boolean isAtEnd = currentVersionPosition == (response.length() - 1);
                             // If we're at end, and the End Version not equals Current Version
                             // >> deb Mode enabled
-                            boolean isDev = isAtEnd && !interVersion.equals(currentVersion);
-                            if (isDev) {
+                            boolean isDev = isAtEnd && (currentVersionPosition == -1);
+                            if(isDev) {
                                 Log.d(TAG, "Hello Debluper");
                                 Toast.makeText(context,
                                         "Hello Debluper",
@@ -131,7 +129,7 @@ public class UpdaterUtils {
                                 Toast.makeText(context,
                                         "We're updated!",
                                         Toast.LENGTH_LONG).show();
-                            } else { // We're not
+                            } else { // We're not updated
                                 // The total number of Tag Requests
                                 tagRequestCount = (response.length() - 1) + currentVersionPosition;
                                 // Creating changeLog message array

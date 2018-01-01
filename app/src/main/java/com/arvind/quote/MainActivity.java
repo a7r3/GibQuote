@@ -65,7 +65,8 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     // to make sure the same fragment isn't instantiated again
     private MenuItem previousItem;
     private BottomNavigationView bottomNavigationView;
-
+    // Root Layout
+    private RelativeLayout rootLayout;
     // Updater Instance
     private UpdaterUtils updaterUtils;
     // AlertDialog in which UpdaterStuff would be shown
@@ -206,7 +207,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         // Set background of the Navigation drawer view
         navigationView.setBackgroundColor(getResources().getColor(cardViewBackGround));
 
-        RelativeLayout rootLayout = findViewById(R.id.root_layout);
+        rootLayout = findViewById(R.id.root_layout);
 
         if (themeKey.equals("translucent")) {
             AnimationDrawable anim = (AnimationDrawable) rootLayout.getBackground();
@@ -295,6 +296,10 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         }
 
+        startUpdater();
+    }
+
+    public void startUpdater() {
         // UpdaterUtils Instance
         // Checks for Updates - Uses GitHub Releases/Tags System with GitHub API v3
         updaterUtils = new UpdaterUtils(this.getApplicationContext(), this);
