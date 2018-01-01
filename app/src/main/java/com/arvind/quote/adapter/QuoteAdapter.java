@@ -47,6 +47,10 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
         holder.quoteTextView.setText(quote.getQuoteText());
         holder.authorTextView.setText(quote.getAuthorText());
 
+        // If quote was starred in previous session
+        // Let the star Glow
+        if(quote.isStarred())
+            holder.starQuoteView.setImageResource(R.drawable.star_on);
     }
 
     @Override
@@ -81,6 +85,7 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
             authorTextView = itemView.findViewById(R.id.author_text_view);
 
             starQuoteView = itemView.findViewById(R.id.star_quote_button);
+
             starQuoteView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

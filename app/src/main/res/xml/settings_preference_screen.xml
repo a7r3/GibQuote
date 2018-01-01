@@ -2,20 +2,36 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <ListPreference
-        android:defaultValue="0"
-        android:entries="@array/theme_strings"
-        android:entryValues="@array/theme_values"
-        android:icon="@drawable/ic_style_black_24dp"
-        android:key="THEME_KEY"
-        android:summary="Select the base theme"
-        android:title="Theme" />
+    <PreferenceCategory
+        android:key="LOOK_AND_FEEL"
+        android:title="Look and Feel">
 
-    <CheckBoxPreference
-        android:defaultValue="false"
-        android:key="FRAG_SWITCHER_KEY"
-        android:summary="Current Switcher: Navigation Drawer"
-        android:title="Use BottomBar as Switcher" />
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/theme_strings"
+            android:entryValues="@array/theme_values"
+            android:icon="@drawable/ic_style_black_24dp"
+            android:key="THEME_KEY"
+            android:summary="Select the base theme"
+            android:title="Theme" />
+
+        <CheckBoxPreference
+            android:defaultValue="false"
+            android:key="FRAG_SWITCHER_KEY"
+            android:summary="Current Switcher: Navigation Drawer"
+            android:title="Use BottomBar as Switcher" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="QOTD_CAT"
+        android:title="Quote of the Day">
+
+        <SwitchPreference
+            android:defaultValue="false"
+            android:key="QOTD_ENABLE"
+            android:summary="You'd be not receiving daily notifications"
+            android:title="Enable QoTD Notifications" />
 
         <TimePickerPreference
             android:key="QOTD_TIME"
@@ -24,6 +40,8 @@
             android:title="Set time for QoTD"
             app:pref_hourFormat="auto"
             app:pref_pickerTime="10:10"
-            app:pref_summaryHasTime="QoTD will appear daily at %s" />
+            app:pref_summaryHasTime="Quote would appear at %s" />
+
+    </PreferenceCategory>
 
 </PreferenceScreen>

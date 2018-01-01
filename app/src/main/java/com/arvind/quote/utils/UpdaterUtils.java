@@ -105,8 +105,9 @@ public class UpdaterUtils {
                             int currentVersionPosition;
 
                             // Get Position of currentVersion Tag in the tags List
+                            String interVersion = null;
                             for (currentVersionPosition = 0; currentVersionPosition < response.length(); currentVersionPosition++) {
-                                String interVersion = response
+                                interVersion = response
                                         .getJSONObject(currentVersionPosition)
                                         .getString("ref")
                                         .replaceAll(".*/", "");
@@ -116,7 +117,16 @@ public class UpdaterUtils {
                             }
 
                             // If currentVersion is at the End, we're updated
-                            if (currentVersionPosition == response.length() - 1) {
+                            boolean isAtEnd = currentVersionPosition == response.length();
+                            // If we're at end, and the End Version not equals Current Version
+                            // >> deb Mode enabled
+                            boolean isDev = isAtEnd && !interVersion.equals(currentVersion);
+                            if (isDev) {
+                                Log.d(TAG, "Hello Debluper");
+                                Toast.makeText(context,
+                                        "Hello Debluper",
+                                        Toast.LENGTH_LONG).show();
+                            } else if(isAtEnd) {
                                 Log.d(TAG, "We're updated");
                                 Toast.makeText(context,
                                         "We're updated!",

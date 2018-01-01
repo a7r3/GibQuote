@@ -40,7 +40,7 @@ import com.arvind.quote.adapter.Quote;
 import com.arvind.quote.database.FavDatabaseHelper;
 import com.arvind.quote.fragment.FavQuoteFragment;
 import com.arvind.quote.fragment.GibQuoteFragment;
-import com.arvind.quote.fragment.SettingsFragment;
+import com.arvind.quote.fragment.PreferencesFragment;
 import com.arvind.quote.utils.NotificationUtils;
 import com.arvind.quote.utils.UpdaterUtils;
 import com.mikepenz.aboutlibraries.LibsBuilder;
@@ -381,7 +381,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                 fragment = new GibQuoteFragment();
                 break;
             case R.id.preferences_item:
-                fragment = new SettingsFragment();
+                fragment = new PreferencesFragment();
                 break;
             case R.id.licenses_item:
                 setActionBarTitle("Licenses");
@@ -416,7 +416,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
     @Override
     public boolean onPreferenceStartScreen(PreferenceFragmentCompat preferenceFragmentCompat, PreferenceScreen preferenceScreen) {
-        SettingsFragment fragment = new SettingsFragment();
+        PreferencesFragment fragment = new PreferencesFragment();
 
         Bundle args = new Bundle();
         args.putString(PreferenceFragmentCompat.ARG_PREFERENCE_ROOT, preferenceScreen.getKey());
