@@ -44,4 +44,15 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory
+        android:title="Updates"
+        android:key="UPDATES">
+
+        <CheckBoxPreference
+            android:key="UPDATE_CHECK"
+            android:title="Enable Update Check on Startup"
+            android:defaultValue="false"/>
+
+    </PreferenceCategory>
+
 </PreferenceScreen>

@@ -88,7 +88,7 @@ public class GibQuoteFragment extends Fragment {
             quoteArrayList = new Gson().fromJson(quoteJson, new TypeToken<ArrayList<Quote>>() {
             }.getType());
         } else {
-            Log.d(TAG, "I wunt neu Quotes pls");
+            Log.d(TAG, "New Session. Initializing Quote List");
             quoteArrayList = new ArrayList<>();
         }
 
@@ -363,7 +363,7 @@ public class GibQuoteFragment extends Fragment {
                 .drawShadow(true)
                 .cancelable(true)
                 .transparentTarget(true)
-                .targetRadius(110);
+                .targetRadius(90);
 
         TapTarget gibQuoteTapTarget = TapTarget.forView(view.findViewById(R.id.gib_quote_fab),
                 "One last step",

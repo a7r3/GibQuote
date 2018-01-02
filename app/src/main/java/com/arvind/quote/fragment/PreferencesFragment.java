@@ -15,6 +15,7 @@ import com.arvind.quote.BuildConfig;
 import com.arvind.quote.MainActivity;
 import com.arvind.quote.R;
 import com.arvind.quote.utils.SomeBroadReceiver;
+import com.arvind.quote.utils.Updater;
 import com.takisoft.fix.support.v7.preference.PreferenceCategory;
 import com.takisoft.fix.support.v7.preference.PreferenceFragmentCompatDividers;
 import com.takisoft.fix.support.v7.preference.TimePickerPreference;
@@ -31,6 +32,7 @@ public class PreferencesFragment extends PreferenceFragmentCompatDividers {
     private CheckBoxPreference fragSwitcherPreference;
     private SwitchPreference switchPreference;
     private TimePickerPreference qotdTimePref;
+    private CheckBoxPreference updatePreference;
 
     private String getThemeSummary() {
         String themeKey = sharedPreferences.getString("THEME_KEY", "light");
@@ -102,6 +104,29 @@ public class PreferencesFragment extends PreferenceFragmentCompatDividers {
                     Intent notifServiceIntent = new Intent(getContext(), SomeBroadReceiver.class);
                     notifServiceIntent.setAction(BuildConfig.APPLICATION_ID + ".CANCEL_QOTD");
                     getContext().sendBroadcast(notifServiceIntent);
+                }
+                return true;
+            }
+        });
+
+        PreferenceCategory updatePrefCategory = (PreferenceCategory) findPreference("UPDATES");
+
+        updatePreference = (CheckBoxPreference) updatePrefCategory.findPreference("UPDATE_CHECK");
+        updatePreference.setSummaryOff("Updates are disabled");
+        updatePreference.setSummaryOn("Updates are enabled on startup");
+
+        updatePreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+            @Override
+            public boolean onPreferenceChange(Preference preference, Object newValue) {
+                Boolean isChecked = (Boolean) newValue;
+                if(isChecked) {
+                    sharedPreferences.edit()
+                            .putBoolean("UPDATES_ENABLED", true)
+                            .apply();
+                    new Updater(getActivity())
+                            .setTagsUrl(MainActivity.GIT_TAG_URL)
+                            .setRootLayout(R.id.root_layout)
+                            .checkForUpdates();
                 }
                 return true;
             }

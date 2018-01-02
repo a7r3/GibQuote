@@ -12,7 +12,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.arvind.quote.adapter.Quote;
-import com.arvind.quote.utils.NotificationUtils;
+import com.arvind.quote.utils.notification.NotificationUtils;
 
 import org.json.JSONObject;
 

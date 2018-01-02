@@ -1,4 +1,4 @@
-package com.arvind.quote.utils;
+package com.arvind.quote.utils.notification;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
-import com.arvind.quote.NotificationDialog;
 import com.arvind.quote.R;
 import com.arvind.quote.adapter.Quote;
 

@@ -2,7 +2,6 @@ package com.arvind.quote;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -22,7 +21,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.preference.PreferenceFragmentCompat;
 import android.support.v7.preference.PreferenceScreen;
@@ -30,10 +28,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.arvind.quote.adapter.Quote;
@@ -41,8 +36,7 @@ import com.arvind.quote.database.FavDatabaseHelper;
 import com.arvind.quote.fragment.FavQuoteFragment;
 import com.arvind.quote.fragment.GibQuoteFragment;
 import com.arvind.quote.fragment.PreferencesFragment;
-import com.arvind.quote.utils.NotificationUtils;
-import com.arvind.quote.utils.UpdaterUtils;
+import com.arvind.quote.utils.Updater;
 import com.mikepenz.aboutlibraries.LibsBuilder;
 
 public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback, ActivityCompat.OnRequestPermissionsResultCallback {
@@ -51,7 +45,9 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     private static ActionBar actionBar;
     // Who am I ?
     private final String TAG = "MainActivity";
-    public NotificationUtils notificationUtils;
+    // GitHub Tag Endpoint
+    public final static String GIT_TAG_URL = "https://api.github.com/repos/a7r3/GibQuote/git/refs/tags";
+    private boolean isStoragePermissionGranted = false;
     // Layout under which fragments would reside
     private DrawerLayout drawerLayout;
     // Provides toggling action to open the Navigation Drawer
@@ -67,15 +63,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     private BottomNavigationView bottomNavigationView;
     // Root Layout
     private RelativeLayout rootLayout;
-    // Updater Instance
-    private UpdaterUtils updaterUtils;
-    // AlertDialog in which UpdaterStuff would be shown
-    private AlertDialog.Builder updateAlertDialog;
-    // The Layout which contains the ProgressBar, and updateMessage TextView
-    private View updateMessageLayout;
-    // View in which update message would be shown
-    private TextView updateMessage;
-    private LinearLayout progressLayout;
 
     // Callback value
     // This would be used to check which set of permissions were asked
@@ -89,9 +76,18 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     // Required by Fragments to ...
     // Set ActionBar's title
     public static void setActionBarTitle(String title) {
-        if (actionBar != null) {
+        if (actionBar != null)
             actionBar.setTitle(title);
-        }
+    }
+
+    public static void showActionBar() {
+        if(actionBar != null)
+            actionBar.show();
+    }
+
+    public static void hideActionBar() {
+        if(actionBar != null)
+            actionBar.hide();
     }
 
     /* Allows the user to share currently displayed quote */
@@ -123,6 +119,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     public static void removeFromFavQuotesList(Context context, int id) {
         FavDatabaseHelper favDatabaseHelper = FavDatabaseHelper.getInstance(context);
         Log.d("MainActivity", "Removing FavQuote " + id);
+        Toast.makeText(context, "Removed from Favorites", Toast.LENGTH_SHORT).show();
         favDatabaseHelper.removeFavQuote(id);
     }
 
@@ -132,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         // If the granted permission was related to Storage
         if (requestCode == REQUEST_WRITE_EXTERNAL_STORAGE) {
             // If there are non-zero grants, and We've got Permission for Storage (there's just one perm)
-            if (grantResults.length == 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 // Yay
                 Log.d(TAG, "Storage Permission Granted");
                 Snackbar.make(findViewById(R.id.root_layout),
@@ -177,15 +174,16 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
 
         setContentView(R.layout.activity_main);
 
-        // If WRITE_EXTERNAL_STORAGE permisson is not granted
+        rootLayout = findViewById(R.id.root_layout);
+
+        // If WRITE_EXTERNAL_STORAGE permission is not granted
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             // If the user has to be provided a reason to grant a permission
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
                 // then show the reason
-                Snackbar.make(findViewById(R.id.root_layout),
-                        "GibQuote requires the storage permission for installing Updates",
+                Snackbar.make(rootLayout,
+                        "App requires Storage permission to Install Updates",
                         Snackbar.LENGTH_INDEFINITE)
-                        // On Approval, get the Permission Dialog
                         .setAction("OK", new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
@@ -200,14 +198,13 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
                         requiredPerms,
                         REQUEST_WRITE_EXTERNAL_STORAGE);
             }
-        }
+        } else
+            isStoragePermissionGranted = true;
 
         NavigationView navigationView = findViewById(R.id.nav_bar_view);
 
         // Set background of the Navigation drawer view
         navigationView.setBackgroundColor(getResources().getColor(cardViewBackGround));
-
-        rootLayout = findViewById(R.id.root_layout);
 
         if (themeKey.equals("translucent")) {
             AnimationDrawable anim = (AnimationDrawable) rootLayout.getBackground();
@@ -231,7 +228,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         // Set 'toolbar' as an ActionBar
         setSupportActionBar(toolbar);
 
-        // Required by fragments to setActionBarTitle()
+        // Required by fragments to modify ActionBar
         actionBar = getSupportActionBar();
 
         drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.drawer_open, R.string.drawer_close);
@@ -288,95 +285,19 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             bottomNavigationView.setVisibility(View.VISIBLE);
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             drawerToggle.setDrawerIndicatorEnabled(false);
-            getSupportActionBar().hide();
+            hideActionBar();
         } else {
-            getSupportActionBar().show();
+            showActionBar();
             bottomNavigationView.setVisibility(View.GONE);
             drawerToggle.setDrawerIndicatorEnabled(true);
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         }
 
-        startUpdater();
-    }
-
-    public void startUpdater() {
-        // UpdaterUtils Instance
-        // Checks for Updates - Uses GitHub Releases/Tags System with GitHub API v3
-        updaterUtils = new UpdaterUtils(this.getApplicationContext(), this);
-        // The Layout which contains the updateMessage TextView
-        updateMessageLayout = getLayoutInflater().inflate(R.layout.update_message_view, rootLayout, false);
-        // Get the updateMessage TextView
-        updateMessage = updateMessageLayout.findViewById(R.id.update_message);
-        progressLayout = updateMessageLayout.findViewById(R.id.progress_view);
-
-        // Set a listener for the boolean 'isUpdateAvailable'
-        // It is set to true when an update is available
-        updaterUtils.setUpdateAvailableListener(new UpdaterUtils.UpdateAvailable() {
-            @Override
-            public void onUpdateAvailable() {
-                // Construkt the AlertDialog
-                updateAlertDialog = new AlertDialog.Builder(MainActivity.this);
-                // Set the TextView as AlertDialog's view
-                // this view would contain the update message
-                updateAlertDialog.setView(updateMessageLayout);
-                updateAlertDialog.setTitle("Update : " + updaterUtils.getUpdatedVersion());
-                updateAlertDialog.setIcon(R.drawable.ic_fiber_new_black_24dp);
-
-                final ProgressBar progressBar = updateMessageLayout.findViewById(R.id.progressBar);
-                progressLayout.setVisibility(View.VISIBLE);
-                progressBar.setIndeterminate(true);
-                updateMessage.setVisibility(View.GONE);
-
-                // Make it non-cancelable
-                // It can be cancelled only by pressing the Negative Button
-                updateAlertDialog.setCancelable(false);
-
-                updateAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Toast.makeText(MainActivity.this, "Bugs Bro Bugs", Toast.LENGTH_LONG).show();
-                    }
-                });
-
-                updateAlertDialog.setPositiveButton("Update", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        // Tell the user that we're updating
-                        final Snackbar snackbar = Snackbar.make(MainActivity.this.findViewById(R.id.drawer_layout),
-                                "Update is being downloaded",
-                                Snackbar.LENGTH_INDEFINITE);
-                        snackbar.setAction("OK", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                snackbar.dismiss();
-                            }
-                        });
-                        snackbar.show();
-                        // Magic.show()
-                        updaterUtils.updateApplication(sharedPreferences);
-                    }
-                });
-
-                updateAlertDialog.create().show();
-
-                updaterUtils.setMessageRequestListener(new UpdaterUtils.MessageRequest() {
-                    @Override
-                    public void onMessageFetchComplete() {
-                        progressBar.setIndeterminate(false);
-                        progressLayout.setVisibility(View.GONE);
-                        updateMessage.setVisibility(View.VISIBLE);
-                        // Play with the Message
-                        String[] changeLog = updaterUtils.getChangeLogMessage();
-                        StringBuilder stringBuilder = new StringBuilder();
-                        for (int i = changeLog.length - 1; i >= 0; i--)
-                            stringBuilder.append(changeLog[i]);
-                        updateMessage.setText(stringBuilder);
-                    }
-                });
-
-            }
-        });
-
+        if(isStoragePermissionGranted)
+            new Updater(this)
+                    .setTagsUrl(GIT_TAG_URL)
+                    .setRootLayout(R.id.root_layout)
+                    .checkForUpdates();
     }
 
     public void switchFragment(MenuItem item) {
@@ -452,7 +373,5 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Unregister the broadcast receiver
-        updaterUtils.unregisterDownloadReceiver();
     }
 }

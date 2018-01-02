@@ -32,7 +32,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".NotificationDialog"
+            android:name=".utils.notification.NotificationDialog"
             android:excludeFromRecents="true"
             android:noHistory="true"
             android:theme="@style/DialogTheme" />

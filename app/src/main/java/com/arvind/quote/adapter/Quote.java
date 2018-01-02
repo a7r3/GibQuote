@@ -1,15 +1,17 @@
 package com.arvind.quote.adapter;
 
+///////////////////////////////
+// RecyclerView's Data Model //
+///////////////////////////////
+
 public class Quote {
-    // Class which holds the Data required by RecyclerView's ViewHolder
-    // Class' object is given to the ViewHolder
-    // which inflates the basic layout
-    // and make use of these data in the layout
-    // wherever needed
 
     private final String quoteText;
     private final String authorText;
+    // Position of the Quote in FavQuotes Database
     private int id;
+    // Is the Quote starred ?
+    // Helps the RecyclerView to glow the stars on starred Quotes
     private boolean isStarred;
 
     public Quote(int id, String quoteText, String authorText) {
