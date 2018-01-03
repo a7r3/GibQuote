@@ -8,8 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.arvind.quote.MainActivity;
 import com.arvind.quote.R;
+import com.arvind.quote.utils.CommonUtils;
 
 import java.util.List;
 
@@ -49,7 +49,7 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
 
         // If quote was starred in previous session
         // Let the star Glow
-        if(quote.isStarred())
+        if (quote.isStarred())
             holder.starQuoteView.setImageResource(R.drawable.star_on);
     }
 
@@ -90,11 +90,11 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
                 public void onClick(View v) {
                     Quote selectedQuote = quoteList.get(getAdapterPosition());
                     if (selectedQuote.isStarred()) {
-                        MainActivity.removeFromFavQuotesList(context, selectedQuote.getId());
+                        CommonUtils.removeFromFavQuotesList(context, selectedQuote.getId());
                         starQuoteView.setImageResource(R.drawable.star_off);
                         selectedQuote.setStarred(false);
                     } else {
-                        selectedQuote.setId(MainActivity.addToFavQuoteList(context, quoteList.get(getAdapterPosition())));
+                        selectedQuote.setId(CommonUtils.addToFavQuoteList(context, quoteList.get(getAdapterPosition())));
                         starQuoteView.setImageResource(R.drawable.star_on);
                         selectedQuote.setStarred(true);
                     }
@@ -104,7 +104,7 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    MainActivity.shareQuote(context, quoteList.get(getAdapterPosition()));
+                    CommonUtils.shareQuote(context, quoteList.get(getAdapterPosition()));
                     return true;
                 }
             });

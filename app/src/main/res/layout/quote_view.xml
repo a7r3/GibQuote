@@ -3,7 +3,6 @@
     android:id="@+id/quote_view"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="?selectableItemBackground"
     android:clickable="true"
     android:focusable="true">
 
@@ -16,7 +15,8 @@
         android:layout_marginTop="16dp"
         android:background="@drawable/star"
         android:padding="8dp"
-        android:src="@drawable/star_off" />
+        android:src="@drawable/star_off"
+        android:contentDescription="Star/Unstar Quote" />
 
     <TextView
         android:id="@+id/quote_text_view"
@@ -25,9 +25,12 @@
         android:layout_toRightOf="@id/star_quote_button"
         android:paddingBottom="8dp"
         android:paddingRight="8dp"
+        android:paddingLeft="4dp"
         android:paddingTop="16dp"
         android:text="NULL Life for the Win"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:layout_toEndOf="@id/star_quote_button"
+        android:paddingEnd="8dp" />
 
     <TextView
         android:id="@+id/author_text_view"

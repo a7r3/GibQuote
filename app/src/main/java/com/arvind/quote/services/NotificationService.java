@@ -18,7 +18,7 @@ import org.json.JSONObject;
 
 public class NotificationService extends IntentService {
 
-    private String TAG = "NotificationService";
+    private final String TAG = "NotificationService";
 
     private String authorText, quoteText;
     private NotificationUtils notificationUtils;
@@ -60,7 +60,5 @@ public class NotificationService extends IntentService {
         );
         // Add the request to Volley's Request Queue
         requestQueue.add(jsonObjectRequest);
-
     }
-
 }

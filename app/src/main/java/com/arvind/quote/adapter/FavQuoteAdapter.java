@@ -11,9 +11,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.arvind.quote.MainActivity;
 import com.arvind.quote.R;
 import com.arvind.quote.database.FavDatabaseHelper;
+import com.arvind.quote.utils.CommonUtils;
 
 import java.util.List;
 
@@ -113,7 +113,7 @@ public class FavQuoteAdapter extends RecyclerView.Adapter<FavQuoteAdapter.QuoteV
 
         @Override
         public boolean onLongClick(View v) {
-            new MainActivity().shareQuote(context, favQuoteList.get(getAdapterPosition()));
+            CommonUtils.shareQuote(context, favQuoteList.get(getAdapterPosition()));
             return true;
         }
     }

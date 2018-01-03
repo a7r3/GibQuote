@@ -23,7 +23,7 @@ import com.takisoft.fix.support.v7.preference.TimePickerPreference;
 // A placeholder fragment containing a simple view.
 public class PreferencesFragment extends PreferenceFragmentCompatDividers {
 
-    private String TAG = "PreferencesFragment";
+    private final String TAG = "PreferencesFragment";
     private SharedPreferences sharedPreferences;
 
     // Listen for changes in a SharedPreference
@@ -89,14 +89,14 @@ public class PreferencesFragment extends PreferenceFragmentCompatDividers {
         switchPreference.setSummaryOff("You're not receiving daily notifications");
 
         // Hide the TimePickerPreference if it's unchecked
-        if(!switchPreference.isChecked())
+        if (!switchPreference.isChecked())
             qotdTimePref.setVisible(false);
 
         switchPreference.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 Boolean isSwitchOn = (Boolean) newValue;
-                if(isSwitchOn) // show the TimePicker
+                if (isSwitchOn) // show the TimePicker
                     qotdTimePref.setVisible(true);
                 else {
                     // Hide the TimePicker, and Cancel all alarms in the BroadcastReceiver
@@ -119,7 +119,7 @@ public class PreferencesFragment extends PreferenceFragmentCompatDividers {
             @Override
             public boolean onPreferenceChange(Preference preference, Object newValue) {
                 Boolean isChecked = (Boolean) newValue;
-                if(isChecked) {
+                if (isChecked) {
                     sharedPreferences.edit()
                             .putBoolean("UPDATES_ENABLED", true)
                             .apply();

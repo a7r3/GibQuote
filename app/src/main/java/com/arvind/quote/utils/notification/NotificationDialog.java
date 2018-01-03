@@ -5,11 +5,12 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.arvind.quote.MainActivity;
 import com.arvind.quote.R;
 import com.arvind.quote.adapter.Quote;
+import com.arvind.quote.utils.CommonUtils;
 
 public class NotificationDialog extends Activity {
     @Override
@@ -24,6 +25,9 @@ public class NotificationDialog extends Activity {
 
         setContentView(R.layout.activity_notification_dialog);
 
+        RelativeLayout quoteLayout = findViewById(R.id.fav_quote_notif_view);
+        quoteLayout.setBackgroundResource(R.color.colorTranslucent);
+
         TextView quoteTextView = findViewById(R.id.quote_text_view);
         quoteTextView.setText(quoteText);
 
@@ -34,7 +38,7 @@ public class NotificationDialog extends Activity {
         shareButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MainActivity.shareQuote(getApplicationContext(), new Quote(quoteText, authorText));
+                CommonUtils.shareQuote(getApplicationContext(), new Quote(quoteText, authorText));
             }
         });
 
@@ -42,7 +46,7 @@ public class NotificationDialog extends Activity {
         favButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                MainActivity.addToFavQuoteList(getApplicationContext(), new Quote(quoteText, authorText));
+                CommonUtils.addToFavQuoteList(getApplicationContext(), new Quote(quoteText, authorText));
             }
         });
 

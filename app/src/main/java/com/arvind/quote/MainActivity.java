@@ -1,8 +1,6 @@
 package com.arvind.quote;
 
 import android.Manifest;
-import android.content.Context;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
@@ -29,10 +27,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
-import com.arvind.quote.adapter.Quote;
-import com.arvind.quote.database.FavDatabaseHelper;
 import com.arvind.quote.fragment.FavQuoteFragment;
 import com.arvind.quote.fragment.GibQuoteFragment;
 import com.arvind.quote.fragment.PreferencesFragment;
@@ -41,12 +36,19 @@ import com.mikepenz.aboutlibraries.LibsBuilder;
 
 public class MainActivity extends AppCompatActivity implements PreferenceFragmentCompat.OnPreferenceStartScreenCallback, ActivityCompat.OnRequestPermissionsResultCallback {
 
+    // GitHub Tag Endpoint
+    public final static String GIT_TAG_URL = "https://api.github.com/repos/a7r3/GibQuote/git/refs/tags";
     // ActionBar for the App
     private static ActionBar actionBar;
     // Who am I ?
     private final String TAG = "MainActivity";
-    // GitHub Tag Endpoint
-    public final static String GIT_TAG_URL = "https://api.github.com/repos/a7r3/GibQuote/git/refs/tags";
+    // Callback value
+    // This would be used to check which set of permissions were asked
+    // This is of Storage
+    private final int REQUEST_WRITE_EXTERNAL_STORAGE = 10;
+    private final String[] requiredPerms = {
+            Manifest.permission.WRITE_EXTERNAL_STORAGE
+    };
     private boolean isStoragePermissionGranted = false;
     // Layout under which fragments would reside
     private DrawerLayout drawerLayout;
@@ -64,15 +66,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     // Root Layout
     private RelativeLayout rootLayout;
 
-    // Callback value
-    // This would be used to check which set of permissions were asked
-    // This is of Storage
-    private int REQUEST_WRITE_EXTERNAL_STORAGE = 10;
-
-    private String[] requiredPerms = {
-            Manifest.permission.WRITE_EXTERNAL_STORAGE
-    };
-
     // Required by Fragments to ...
     // Set ActionBar's title
     public static void setActionBarTitle(String title) {
@@ -81,46 +74,13 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     }
 
     public static void showActionBar() {
-        if(actionBar != null)
+        if (actionBar != null)
             actionBar.show();
     }
 
     public static void hideActionBar() {
-        if(actionBar != null)
+        if (actionBar != null)
             actionBar.hide();
-    }
-
-    /* Allows the user to share currently displayed quote */
-    public static void shareQuote(Context context, Quote quote) {
-        Log.d("MainActivity", "Creating Share Intent");
-        // My intention is to send (throw) a piece of Text (ball)
-        Intent quoteIntent = new Intent(Intent.ACTION_SEND);
-        // Piece of Text (the Ball)
-        String quoteMessage = quote.getQuoteText() + "\n\n-- " + quote.getAuthorText();
-        // Specify the Text to be thrown
-        quoteIntent.putExtra(Intent.EXTRA_TEXT, quoteMessage);
-        // Specify the MIME type of the object to be thrown
-        quoteIntent.setType("text/plain");
-        // Send an Acknowledgement
-        Toast.makeText(context, "Select an App to GibQuote", Toast.LENGTH_SHORT).show();
-        // Throw the Ball!
-        context.startActivity(Intent.createChooser(quoteIntent, "Share this Quote"));
-    }
-
-    public static int addToFavQuoteList(Context context, Quote quoteData) {
-        FavDatabaseHelper favDatabaseHelper = FavDatabaseHelper.getInstance(context);
-        int id = (int) favDatabaseHelper.getRowCount();
-        Log.d("MainActivity", "Inserting FavQuote " + id);
-        favDatabaseHelper.addFavQuote(id, quoteData);
-        Toast.makeText(context, "Added to Favorites", Toast.LENGTH_SHORT).show();
-        return id;
-    }
-
-    public static void removeFromFavQuotesList(Context context, int id) {
-        FavDatabaseHelper favDatabaseHelper = FavDatabaseHelper.getInstance(context);
-        Log.d("MainActivity", "Removing FavQuote " + id);
-        Toast.makeText(context, "Removed from Favorites", Toast.LENGTH_SHORT).show();
-        favDatabaseHelper.removeFavQuote(id);
     }
 
     @Override
@@ -147,7 +107,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         super.onCreate(savedInstanceState);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-
         String themeKey = sharedPreferences.getString("THEME_KEY", "light");
 
         int cardViewBackGround = R.color.colorLightCardView;
@@ -293,14 +252,15 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         }
 
-        if(isStoragePermissionGranted)
-            new Updater(this)
-                    .setTagsUrl(GIT_TAG_URL)
-                    .setRootLayout(R.id.root_layout)
-                    .checkForUpdates();
+        if (isStoragePermissionGranted)
+            if (sharedPreferences.getBoolean("UPDATE_CHECK", true))
+                new Updater(this)
+                        .setTagsUrl(GIT_TAG_URL)
+                        .setRootLayout(R.id.root_layout)
+                        .checkForUpdates();
     }
 
-    public void switchFragment(MenuItem item) {
+    private void switchFragment(MenuItem item) {
         Fragment fragment;
         switch (item.getItemId()) {
             case R.id.gib_quotes_item:
@@ -370,8 +330,4 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         drawerToggle.onConfigurationChanged(newConfig);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
 }

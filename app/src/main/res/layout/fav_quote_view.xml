@@ -3,7 +3,6 @@
     android:id="@+id/quote_view"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:background="?selectableItemBackground"
     android:clickable="true"
     android:focusable="true">
 
@@ -16,7 +15,9 @@
         android:paddingRight="8dp"
         android:paddingTop="16dp"
         android:text="NULL Life for the Win"
-        android:textSize="18sp" />
+        android:textSize="18sp"
+        android:paddingStart="16dp"
+        android:paddingEnd="8dp" />
 
     <TextView
         android:id="@+id/author_text_view"

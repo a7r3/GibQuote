@@ -24,8 +24,8 @@ import java.util.ArrayList;
 
 public class FavQuoteFragment extends Fragment {
 
+    private final String TAG = "FavQuoteFragment";
     private SharedPreferences sharedPreferences;
-    private String TAG = "FavQuoteFragment";
     private Snackbar snackbar;
 
     @Nullable

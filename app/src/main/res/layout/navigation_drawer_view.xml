@@ -3,4 +3,5 @@
     android:layout_width="match_parent"
     android:layout_height="200dp"
     android:scaleType="centerCrop"
-    android:src="@drawable/nav_bg_dark" />
+    android:src="@drawable/nav_bg_dark"
+    android:contentDescription="Gib Gib Gib" />

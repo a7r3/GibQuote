@@ -47,7 +47,7 @@ import java.util.Random;
 
 public class GibQuoteFragment extends Fragment {
 
-    private String TAG = "GibQuoteFragment";
+    private final String TAG = "GibQuoteFragment";
 
     // Quote Fetching Stuff
     private ArrayList<Quote> quoteArrayList = new ArrayList<>();
@@ -343,7 +343,7 @@ public class GibQuoteFragment extends Fragment {
         return false;
     }
 
-    public void showIntroTapTargets(View view) {
+    private void showIntroTapTargets(View view) {
         Typeface boldTypeFace = Typeface
                 .createFromAsset(getActivity().getAssets(),
                         "fonts/comfortaa/comfortaa_bold.ttf");
@@ -418,7 +418,6 @@ public class GibQuoteFragment extends Fragment {
         // GSON can convert De-serialized Data (Java Objects) to Serialized Data (JSON) and vice-versa
         // https://github.com/google/gson
         String quoteJson = new Gson().toJson(quoteArrayList);
-        Log.d(TAG, "JSON: " + quoteJson);
         // Save the serialized JSON String as a Preference
         sharedPreferences.edit()
                 .putString("quoteData", quoteJson)

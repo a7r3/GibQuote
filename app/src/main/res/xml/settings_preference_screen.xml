@@ -50,8 +50,8 @@
 
         <CheckBoxPreference
             android:key="UPDATE_CHECK"
-            android:title="Enable Update Check on Startup"
-            android:defaultValue="false"/>
+            android:title="Enable Updates"
+            android:defaultValue="true" />
 
     </PreferenceCategory>
 

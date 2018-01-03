@@ -43,6 +43,7 @@
             </intent-filter>
         </receiver>
         <service android:name=".services.NotificationService" />
+        <service android:name=".services.CommonUtilService" />
     </application>
 
 </manifest>

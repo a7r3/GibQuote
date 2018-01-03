@@ -18,19 +18,19 @@ public class FavDatabaseHelper extends SQLiteOpenHelper {
     // to the database (for eg. Changing column info)
     // Incrementing it would drop older version's DB
     // See onUpgrade() for implementation
-    private static int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 1;
     // Give the DB a good name
-    private static String DATABASE_NAME = "FavQuote";
+    private static final String DATABASE_NAME = "FavQuote";
     // Static Instance of Database Helper
     private static FavDatabaseHelper favDatabaseHelperInstance;
-    private String TAG = "FavDatabaseHelper";
+    private final String TAG = "FavDatabaseHelper";
     // Table name
-    private String QUOTE_TABLE = "quotes";
+    private final String QUOTE_TABLE = "quotes";
 
     // Table columns
-    private String ID_KEY = "id";
-    private String QUOTE_KEY = "quote";
-    private String AUTHOR_KEY = "author";
+    private final String ID_KEY = "id";
+    private final String QUOTE_KEY = "quote";
+    private final String AUTHOR_KEY = "author";
 
     private FavDatabaseHelper(Context context, String name, SQLiteDatabase.CursorFactory factory, int version) {
         super(context, name, factory, version);

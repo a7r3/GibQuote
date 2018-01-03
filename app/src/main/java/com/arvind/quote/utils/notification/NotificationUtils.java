@@ -9,15 +9,19 @@ import android.content.Intent;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
+import com.arvind.quote.BuildConfig;
 import com.arvind.quote.R;
 import com.arvind.quote.adapter.Quote;
+import com.arvind.quote.services.CommonUtilService;
+import com.arvind.quote.utils.SomeBroadReceiver;
+import com.google.gson.Gson;
 
 public class NotificationUtils {
 
     private static NotificationUtils notificationUtils;
+    private final String channelId = "com.arvind.quote.QuoteNotifChannel";
     private Context context;
     private int notificationId;
-    private String channelId = "com.arvind.quote.QuoteNotifChannel";
     private NotificationManager notificationManager;
 
     private NotificationUtils(Context context) {
@@ -64,6 +68,25 @@ public class NotificationUtils {
                 intent,
                 PendingIntent.FLAG_CANCEL_CURRENT);
 
+        Intent commonUtilIntent = new Intent(context, SomeBroadReceiver.class);
+        // Converting Quote Object to Serialized (JSON), GSON FTW!
+        commonUtilIntent.setAction(BuildConfig.APPLICATION_ID + ".COMMON_UTILS");
+        commonUtilIntent.putExtra(CommonUtilService.QUOTE_KEY, new Gson().toJson(quote));
+
+        PendingIntent pendingShareIntent = PendingIntent
+                .getBroadcast(context,
+                        0,
+                        commonUtilIntent
+                                .putExtra(CommonUtilService.INTENT_EXEC_KEY, CommonUtilService.SHARE_QUOTE),
+                        PendingIntent.FLAG_CANCEL_CURRENT);
+
+        PendingIntent pendingFavIntent = PendingIntent
+                .getBroadcast(context,
+                        1,
+                        commonUtilIntent.putExtra(CommonUtilService.INTENT_EXEC_KEY, CommonUtilService.ADD_FAV_QUOTE),
+                        PendingIntent.FLAG_CANCEL_CURRENT);
+
+
         NotificationCompat.Builder notification = new NotificationCompat.Builder(context, channelId)
                 .setContentText(quote.getQuoteText()) // Notification Content
                 .setContentTitle("Quote by " + quote.getAuthorText()) // Notification Title
@@ -77,6 +100,8 @@ public class NotificationUtils {
                         .setSummaryText("Quote of the Day"))
                 .setTicker("Random Quote of the day, for you")
                 .setAutoCancel(true)
+                .addAction(R.drawable.ic_share_black_24dp, "Share", pendingShareIntent)
+                .addAction(R.drawable.star_off, "Star this", pendingFavIntent)
                 .setContentIntent(pendingIntent);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
             notification.setColor(context.getResources().getColor(R.color.colorPrimary, context.getTheme()));

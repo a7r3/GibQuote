@@ -3,16 +3,30 @@
     android:id="@+id/notification_dialog"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:padding="8dp"
     android:background="@color/colorDarkCardView"
-    android:orientation="vertical"
-    android:padding="8dp">
+    android:orientation="vertical">
 
-    <include layout="@layout/fav_quote_view" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/notif_dialog_title"
+        android:text="Quote of the Day"
+        android:textStyle="bold"
+        android:padding="8dp"
+        android:background="@color/colorTranslucent"
+        android:gravity="center"
+        android:textSize="18sp"/>
+
+    <include
+        android:id="@+id/fav_quote_notif_view"
+        layout="@layout/fav_quote_view"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"/>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:dividerPadding="8dp"
         android:orientation="horizontal"
         android:paddingTop="8dp"
         android:weightSum="2">
@@ -22,8 +36,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="?android:selectableItemBackground"
             android:text="Share"
+            android:background="?android:selectableItemBackground"
             android:textColor="@color/colorAccent" />
 
         <Button
@@ -31,8 +45,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:background="?android:selectableItemBackground"
             android:text="Fav this"
+            android:background="?android:selectableItemBackground"
             android:textColor="@color/colorAccent" />
 
     </LinearLayout>

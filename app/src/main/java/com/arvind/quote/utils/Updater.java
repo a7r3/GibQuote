@@ -1,6 +1,5 @@
 package com.arvind.quote.utils;
 
-
 import android.app.Activity;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
@@ -41,19 +40,17 @@ import java.io.File;
 
 public class Updater {
 
-    private String TAG = "Updater";
-
+    private final String TAG = "Updater";
+    // Current version of the application
+    private final String currentVersion;
     // The number of Tag Requests
     private int tagRequestCount = 0;
     // The number of successful Volley requests
     private int successfulRequestCount = 0;
-    // Current version of the application
-    private String currentVersion;
     // Updated version of the application
     private String updatedVersion;
-    // Required for the setChangeLogMessage method call
-    // onMessageFetch is only called if this is set to true
-    // Thus Preventing NPE on null message
+    // setUpdateMessage is called only if this is true
+    // This is set to true when all Tag Requests were successful
     private boolean isUpdateAvailable = false;
     // Volley RequestQueue, for sending Network requests
     private RequestQueue requestQueue;
@@ -69,8 +66,6 @@ public class Updater {
     private String[] changeLogMessage;
     // Layout above which Dialog has to be displayed
     private RelativeLayout rootLayout;
-    // The Layout which contains the ProgressBar, and updateMessage TextView
-    private View updateMessageLayout;
     // View in which update message would be shown
     private TextView updateMessage;
     // Layout which contains the ProgressBar
@@ -78,6 +73,12 @@ public class Updater {
     // The ProgressBar
     private ProgressBar progressBar;
 
+    /**
+     * Creates an Updater Instance
+     *
+     * @param activity The Activity on which Updater should run
+     *                 (Send Network Requests, Create Update Alert Dialog, etc.)
+     */
     public Updater(Activity activity) {
         // Get Activity context
         this.activity = activity;
@@ -88,21 +89,40 @@ public class Updater {
         requestQueue = Volley.newRequestQueue(context);
     }
 
+    /**
+     * Sets the GitHub Tag Endpoint
+     *
+     * @param tagsUrl GitHub API Endpoint for fetching Tags
+     * @return Updated Instance
+     */
     public Updater setTagsUrl(String tagsUrl) {
         this.tagsUrl = tagsUrl;
         // Return updated instance, I lob chaining methods
         return this;
     }
 
+    /**
+     * Sets the layout on/above which the Update dialog has to be shown
+     *
+     * @param rootLayoutId Resource ID of the Layout, above which the Dialog has to be shown
+     * @return Updated Instance
+     */
     public Updater setRootLayout(int rootLayoutId) {
         this.rootLayout = activity.findViewById(rootLayoutId);
         // Return updated instance
         return this;
     }
 
+    /**
+     * Method to start checking for updates.
+     * {@code setRootLayout} and {@code setTagsUrl} should be called
+     * before calling this method
+     */
     public void checkForUpdates() {
+        // Get an array of (Tag) JSON Objects, with this request
         JsonArrayRequest tagsRequest = new JsonArrayRequest(
                 Request.Method.GET,
+                // Tags Endpoint
                 tagsUrl,
                 null,
                 new Response.Listener<JSONArray>() {
@@ -111,7 +131,11 @@ public class Updater {
                         try {
                             updatedVersion = response
                                     .getJSONObject(response.length() - 1)
+                                    // Object 'ref' holds the Tag name <TAG>
+                                    // "ref": "refs/tags/<TAG>",
                                     .getString("ref")
+                                    // Applying a replacement regex '.*/' to ""
+                                    // Would remove the content before '/', including itself
                                     .replaceAll(".*/", "");
 
                             // Variable to hold current Tag's position in the list of tags
@@ -129,17 +153,15 @@ public class Updater {
                                 }
                             }
 
-                            // If currentVersion is at the End, we're updated
-                            boolean isAtEnd = currentVersionPosition == (response.length() - 1);
-                            // If we're at end, and the End Version not equals Current Version
+                            // If currentVersionPosition equals -1 (default value)
                             // >> deb Mode enabled
-                            boolean isDev = isAtEnd && (currentVersionPosition == -1);
-                            if (isDev) {
+                            if (currentVersionPosition == -1) {
                                 Log.d(TAG, "Hello Debluper");
                                 Toast.makeText(context,
                                         "Hello Debluper",
                                         Toast.LENGTH_LONG).show();
-                            } else if (isAtEnd) {
+                            } else if (currentVersionPosition == (response.length() - 1)) {
+                                // Current Version is at the End of the Tags list, so we're updated
                                 Log.d(TAG, "We're updated");
                                 Toast.makeText(context,
                                         "We're updated!",
@@ -152,20 +174,16 @@ public class Updater {
                                 Log.d(TAG, "Number of Requests : " + tagRequestCount);
                                 // Obtain messages of tags which are ahead of current tag
                                 // Contains multiple Volley Requests which are to be executed
-                                // ... only if this request is successful. This explains the
-                                // ... presence of this call in onResponse (Success)
+                                // ... only if this request is successful.
                                 obtainTagMessages(currentVersionPosition, response);
-                                // Call the interface's method, which has to be implemented
-                                // in activity. Way of notifying is up to the user
-                                // new Updater(this)
-                                createAlertDialog(updatedVersion);
+                                // Fire up the dialog
+                                createAlertDialog();
                             }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
                     }
-                }
-                ,
+                },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
@@ -188,10 +206,9 @@ public class Updater {
                     // > The Tags request (1)
                     // > Individual Tag Request
                     // That explains the decrement
-                    if (successfulRequestCount - 1 == tagRequestCount) {
+                    if (successfulRequestCount - 1 == tagRequestCount)
                         if (isUpdateAvailable)
                             setUpdateMessage(changeLogMessage);
-                    }
                 }
             }
         });
@@ -220,6 +237,13 @@ public class Updater {
         }
     }
 
+    /**
+     * @param interTagUrl          Intermediate Tag's URL
+     * @param interVersionPosition Position of the Intermediate Tag, in the Tag array.
+     *                             This is required to put Tag's message in an Array, while
+     *                             preserving its position
+     * @return The JsonObject Network Request, which would be later added to Volley RequestQueue
+     */
     private JsonObjectRequest getInterTagRequest(String interTagUrl, final int interVersionPosition) {
         // Create a tag request with the obtained Tag URL, and obtain Tag Message
         return new JsonObjectRequest(
@@ -252,17 +276,11 @@ public class Updater {
 
     }
 
-    private void createAlertDialog(String updatedVersion) {
-        // Updater Instance
-        // The Layout which contains the updateMessage TextView
-        updateMessageLayout = activity.getLayoutInflater().inflate(R.layout.update_message_view, rootLayout, false);
-        // Get the updateMessage TextView
-        updateMessage = updateMessageLayout.findViewById(R.id.update_message);
-        progressLayout = updateMessageLayout.findViewById(R.id.progress_view);
-        this.updatedVersion = updatedVersion;
-        constructDialog();
-    }
-
+    /**
+     * Method to show the set of Tag-Messages to the user (after all of them has been fetched)
+     *
+     * @param changeLog The ChangeLog string which would be shown to the user
+     */
     private void setUpdateMessage(String[] changeLog) {
         progressBar.setIndeterminate(false);
         progressLayout.setVisibility(View.GONE);
@@ -274,31 +292,39 @@ public class Updater {
         updateMessage.setText(stringBuilder);
     }
 
-    private void constructDialog() {
+    /**
+     * Method to construct an AlertDialog, which would be shown to the user, when there
+     * is an Update available
+     */
+    private void createAlertDialog() {
+        // The Layout which contains the Message (TextView)
+        View updateMessageLayout = activity.getLayoutInflater().inflate(R.layout.update_message_view, rootLayout, false);
+        // Get the updateMessage TextView
+        updateMessage = updateMessageLayout.findViewById(R.id.update_message);
+        // Get the ProgressBar Layout, and make it visible
+        progressLayout = updateMessageLayout.findViewById(R.id.progress_view);
+        progressLayout.setVisibility(View.VISIBLE);
+        // Get the ProgressBar, and set progress as 'Indeterminate'
+        progressBar = updateMessageLayout.findViewById(R.id.progressBar);
+        progressBar.setIndeterminate(true);
+        // Hide the Message Layout
+        updateMessage.setVisibility(View.GONE);
         // Construkt the AlertDialog
         AlertDialog.Builder updateAlertDialog = new AlertDialog.Builder(activity);
-        progressBar = updateMessageLayout.findViewById(R.id.progressBar);
         // Set the TextView as AlertDialog's view
         // this view would contain the update message
         updateAlertDialog.setView(updateMessageLayout);
         updateAlertDialog.setTitle("Update : " + updatedVersion);
         updateAlertDialog.setIcon(R.drawable.ic_fiber_new_black_24dp);
-
-        progressLayout.setVisibility(View.VISIBLE);
-        progressBar.setIndeterminate(true);
-        updateMessage.setVisibility(View.GONE);
-
         // Make it non-cancelable
         // It can be cancelled only by pressing the Negative Button
         updateAlertDialog.setCancelable(false);
-
         updateAlertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
                 Toast.makeText(activity, "Bugs Bro Bugs", Toast.LENGTH_LONG).show();
             }
         });
-
         updateAlertDialog.setPositiveButton("Update", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int i) {
@@ -314,15 +340,19 @@ public class Updater {
                 });
                 snackbar.show();
                 // Magic.show()
-                updateApplication(PreferenceManager.getDefaultSharedPreferences(activity.getApplicationContext()));
+                updateApplication();
             }
         });
         // Show the Dialog
         updateAlertDialog.create().show();
     }
 
-    // Updates pls!
-    private void updateApplication(final SharedPreferences sharedPreferences) {
+    /**
+     * Starts the update process, by downloading latest APK from GitHub Releases (Downloads)
+     * And launches a PackageInstaller Intent on Receiving Download Completion from Broadcast Receiver
+     */
+    private void updateApplication() {
+        final SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         // Place the APK in Downloads
         final String apkDestination = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/gib.apk";
         // Uri, required by downloadRequest
@@ -404,8 +434,11 @@ public class Updater {
         context.registerReceiver(downloadBroadcastReceiver, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
 
-    // Method to un-register download broadcast receiver
-    public void unregisterDownloadReceiver() {
+    /**
+     * Unregisters the Context-registered Broadcast receiver, which was created in
+     * {@code updateApplication}
+     */
+    private void unregisterDownloadReceiver() {
         Log.d(TAG, "Un-registering Download Broadcast Receiver");
         if (downloadBroadcastReceiver != null)
             context.unregisterReceiver(downloadBroadcastReceiver);
