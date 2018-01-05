@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.arvind.quote.R;
 import com.arvind.quote.database.FavDatabaseHelper;
+import com.arvind.quote.fragment.FavQuoteFragment;
 import com.arvind.quote.utils.CommonUtils;
 
 import java.util.List;
@@ -57,7 +58,7 @@ public class FavQuoteAdapter extends RecyclerView.Adapter<FavQuoteAdapter.QuoteV
         return favQuoteList.size();
     }
 
-    public class QuoteViewHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener {
+    public class QuoteViewHolder extends RecyclerView.ViewHolder {
 
         final TextView quoteTextView;
         final TextView authorTextView;
@@ -68,24 +69,35 @@ public class FavQuoteAdapter extends RecyclerView.Adapter<FavQuoteAdapter.QuoteV
             quoteTextView = itemView.findViewById(R.id.quote_text_view);
             authorTextView = itemView.findViewById(R.id.author_text_view);
 
-            itemView.setOnLongClickListener(this);
+            itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View view) {
+                    CommonUtils.shareQuote(context, favQuoteList.get(getAdapterPosition()));
+                    return true;
+                }
+            });
+
 
             // Implement Simple DoubleTap listener
             final GestureDetector gestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(MotionEvent e) {
+                    final Quote quote = favQuoteList.get(getAdapterPosition());
                     new AlertDialog
                             .Builder(context)
                             .setIcon(android.R.drawable.ic_menu_delete)
-                            .setTitle("Confirm Deletion of Quote ?")
+                            .setTitle("Confirm Deletion of Quote")
                             .setMessage("Doing this will remove this quote from Favorites list")
                             .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                     FavDatabaseHelper favDatabaseHelper = FavDatabaseHelper.getInstance(context);
-                                    favDatabaseHelper.removeFavQuote(favQuoteList.get(getAdapterPosition()).getId());
-                                    favQuoteList.remove(favQuoteList.get(getAdapterPosition()));
+                                    favDatabaseHelper.removeFavQuote(quote.getId());
+                                    quote.setStarred(false);
+                                    favQuoteList.remove(quote);
                                     notifyItemRemoved(getAdapterPosition());
+                                    if(getItemCount() == 0)
+                                        FavQuoteFragment.showDefaultFragLayout();
                                 }
                             })
                             .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -109,12 +121,6 @@ public class FavQuoteAdapter extends RecyclerView.Adapter<FavQuoteAdapter.QuoteV
                     return gestureDetector.onTouchEvent(motionEvent);
                 }
             });
-        }
-
-        @Override
-        public boolean onLongClick(View v) {
-            CommonUtils.shareQuote(context, favQuoteList.get(getAdapterPosition()));
-            return true;
         }
     }
 }

@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     // Application's Shared Preferences
     private SharedPreferences sharedPreferences;
     // Theme ID - from styles.xml
-    private int themeId = R.style.AppTheme;
+    public static int themeId = R.style.AppTheme;
     // Keep track of previous selected Drawer Item
     // to make sure the same fragment isn't instantiated again
     private MenuItem previousItem;

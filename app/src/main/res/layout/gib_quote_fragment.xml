@@ -4,53 +4,160 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/provider_layout"
-        style="@style/someStyle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:elevation="2dp"
-        android:orientation="horizontal"
-        android:weightSum="3">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="2"
-            android:gravity="center"
-            android:padding="8dp"
-            android:text="Quote Provider"
-            android:textColor="@android:color/white"
-            android:textStyle="bold" />
-
-        <Spinner
-            android:id="@+id/provider_select"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:spinnerMode="dropdown"
-            android:theme="@style/AnotherAppTheme" />
-
-    </LinearLayout>
-
     <android.support.v7.widget.RecyclerView
         android:id="@+id/quote_list_view"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/provider_layout" />
+        android:layout_height="match_parent" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/gib_quote_fab"
-        style="@style/someFabStyle"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/gib_quote_fragment_default_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical">
+
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/ic_format_quote_black_24dp"
+            android:tint="@color/grey" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/comfortaa_bold"
+            android:padding="8dp"
+            android:text="Want some quotes?"
+            android:textSize="22sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="Single tap the FAB to get one"
+            android:textStyle="italic" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="8dp"
+            android:text="Long press the FAB to view options"
+            android:textStyle="italic" />
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/fab_root_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/transition">
+
+        <LinearLayout
+            android:id="@+id/fabtext_change_provider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/text_change_provider"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="24dp"
+                android:background="@drawable/round"
+                android:elevation="2dp"
+                android:padding="4dp"
+                android:text="Change Quote Provider"
+                android:textColor="@android:color/black"
+                android:textStyle="bold" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_change_provider"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="23dp"
+                android:layout_marginRight="23dp"
+                android:layout_marginTop="23dp"
+                android:src="@drawable/ic_shuffle_black_24dp"
+                app:backgroundTint="?colorPrimary"
+                app:elevation="@dimen/cardview_default_elevation"
+                app:fabSize="mini"
+                app:rippleColor="@color/cardview_light_background" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/fabtext_remove_quotes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/text_remove_quotes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="24dp"
+                android:background="@drawable/round"
+                android:elevation="2dp"
+                android:padding="4dp"
+                android:text="Clear Quotes"
+                android:textColor="@android:color/black"
+                android:textStyle="bold" />
+
+            <android.support.design.widget.FloatingActionButton
+                android:id="@+id/fab_remove_quotes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="23dp"
+                android:layout_marginRight="23dp"
+                android:layout_marginTop="23dp"
+                android:src="@drawable/ic_delete_black_24dp"
+                app:backgroundTint="?colorPrimary"
+                app:elevation="@dimen/cardview_default_elevation"
+                app:fabSize="mini"
+                app:rippleColor="@color/cardview_light_background" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:layout_margin="12dp"
-        android:elevation="@dimen/cardview_default_elevation"
-        android:src="@drawable/ic_sms_black_24dp"
-        app:fabSize="normal"
-        app:rippleColor="@color/cardview_light_background" />
+        android:gravity="center"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/gib_quote_fab_info"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/round"
+            android:elevation="2dp"
+            android:padding="4dp"
+            android:text="Close"
+            android:textColor="@android:color/black"
+            android:textStyle="bold" />
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/gib_quote_fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="15dp"
+            android:src="@drawable/ic_format_quote_black_24dp"
+            app:backgroundTint="?colorAccent"
+            app:elevation="@dimen/cardview_default_elevation"
+            app:fabSize="normal"
+            app:rippleColor="@color/cardview_light_background" />
+
+    </LinearLayout>
 
 </RelativeLayout>

@@ -1,28 +1,35 @@
 package com.arvind.quote.fragment;
 
+import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.graphics.Typeface;
+import android.graphics.drawable.TransitionDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Spinner;
-import android.widget.Toast;
+import android.view.WindowManager;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
@@ -36,7 +43,7 @@ import com.arvind.quote.adapter.Quote;
 import com.arvind.quote.adapter.QuoteAdapter;
 import com.arvind.quote.database.GibDatabaseHelper;
 import com.getkeepsafe.taptargetview.TapTarget;
-import com.getkeepsafe.taptargetview.TapTargetSequence;
+import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -45,7 +52,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Random;
 
-public class GibQuoteFragment extends Fragment {
+public class GibQuoteFragment extends Fragment implements View.OnTouchListener {
 
     private final String TAG = "GibQuoteFragment";
 
@@ -55,9 +62,8 @@ public class GibQuoteFragment extends Fragment {
     private RecyclerView quoteRecyclerView;
     private RequestQueue requestQueue;
 
-
     // QuoteProvider Details
-    private String quoteProvider;
+    private String quoteProvider = "Offline";
     private String quoteUrl;
     private String quoteTextVarName;
     private String quoteAuthorVarName;
@@ -69,6 +75,16 @@ public class GibQuoteFragment extends Fragment {
 
     private Context mContext;
 
+    private boolean areFabsShown = false;
+    private RelativeLayout fabRootLayout;
+    private LinearLayout changeProviderLayout, clearQuoteLayout;
+    private FloatingActionButton gibQuoteFab, changeProviderFab, clearQuoteFab;
+    private TextView gibQuoteInfo, changeProviderInfo, clearQuoteInfo;
+    private TransitionDrawable td;
+    private AlertDialog providerDialog;
+    private ObjectAnimator fabAnimator;
+    private LinearLayout gibFragDefaultLayout;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
@@ -76,28 +92,38 @@ public class GibQuoteFragment extends Fragment {
         View view = inflater.inflate(R.layout.gib_quote_fragment, container, false);
 
         MainActivity.setActionBarTitle("GibQuote");
-
         mContext = getContext();
-
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(mContext);
+        String quoteJson = sharedPreferences.getString("quoteData", null);
+        // RecyclerView Object
+        quoteRecyclerView = view.findViewById(R.id.quote_list_view);
+        quoteRecyclerView.setTag("RECYCLER");
+        // When no quotes are there in the RecyclerView, show this message
+        gibFragDefaultLayout = view.findViewById(R.id.gib_quote_fragment_default_layout);
+        gibFragDefaultLayout.setTag("GIBDEF");
+        // The Dimmed layout which appears when FAB is long pressed
+        fabRootLayout = view.findViewById(R.id.fab_root_layout);
+        fabRootLayout.setTag("FABROOT");
+        fabRootLayout.setOnTouchListener(this);
+        // The Animation Drawable
+        td = (TransitionDrawable) fabRootLayout.getBackground();
 
-        String quoteJson = sharedPreferences.getString("quoteData", "null");
-
-        if (!quoteJson.equals("null")) {
+        if (quoteJson != null) {
             Log.d(TAG, "Restoring 'em Quotes");
             quoteArrayList = new Gson().fromJson(quoteJson, new TypeToken<ArrayList<Quote>>() {
             }.getType());
+            showViewByTag(quoteRecyclerView);
+            // RECYCLER + FABROOT
         } else {
             Log.d(TAG, "New Session. Initializing Quote List");
             quoteArrayList = new ArrayList<>();
+            showViewByTag(gibFragDefaultLayout);
+            // GIBDEF + FABROOT
         }
 
         // RequestQueue executes any number of requests, asynchronously
         // More of a Queue Manager for Volley
         requestQueue = Volley.newRequestQueue(mContext);
-
-        // RecyclerView Object
-        quoteRecyclerView = view.findViewById(R.id.quote_list_view);
 
         // RecyclerView's Adapter - Detects change on DataSet
         quoteAdapter = new QuoteAdapter(mContext, quoteArrayList);
@@ -125,9 +151,11 @@ public class GibQuoteFragment extends Fragment {
         quoteRecyclerView.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
 
         // FAB to generate quote onClick
-        final FloatingActionButton gibQuoteFab = view.findViewById(R.id.gib_quote_fab);
+        gibQuoteFab = view.findViewById(R.id.gib_quote_fab);
+        gibQuoteInfo = view.findViewById(R.id.gib_quote_fab_info);
+        gibQuoteInfo.setVisibility(View.GONE);
 
-        String[] quoteProviders;
+        final String[] quoteProviders;
         if (isNetworkAvailable()) {
             Log.v(TAG, "Connected to Internet");
             quoteProviders = new String[]{"Offline", "Forismatic", "Talaikis", "Storm"};
@@ -149,7 +177,7 @@ public class GibQuoteFragment extends Fragment {
                 // dy - Instantaneous change in 'y' co-ordinate
                 // Origin is at Top-Left corner
                 // scrollDown -> Final 'y' co-ordinate is lesser than (or below) Initial 'y' co-ordinate
-                //                which results in a positive difference
+                //               which results in a positive difference
                 // scrollUp -> Final 'y' Co-ordinate is greater than (or above) Initial 'y' co-ordinate
                 //             which results in a Negative difference
 
@@ -190,15 +218,99 @@ public class GibQuoteFragment extends Fragment {
         gibQuoteFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (quoteProvider.equals("Offline")) {
-                    quoteArrayList.add(gibDatabaseHelper.getRandomQuote(generateRandomNumber()));
-                    quoteAdapter.notifyItemInserted(quoteArrayList.size());
-                    quoteRecyclerView.smoothScrollToPosition(quoteAdapter.getItemCount() - 1);
-                } else {
-                    generateStuffs();
+                if(areFabsShown) {
+                    hideFabMenu();
+                    showViewByTag(quoteRecyclerView);
+                }
+                else {
+                    if (quoteProvider.equals("Offline")) {
+                        quoteArrayList.add(gibDatabaseHelper.getRandomQuote(generateRandomNumber()));
+                        quoteAdapter.notifyItemInserted(quoteArrayList.size());
+                        quoteRecyclerView.smoothScrollToPosition(quoteAdapter.getItemCount() - 1);
+                    } else {
+                        generateStuffs();
+                    }
                 }
             }
         });
+
+        gibQuoteFab.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                if(areFabsShown)
+                    hideFabMenu();
+                else
+                    showFabMenu();
+                return true;
+            }
+        });
+
+        //////////////
+        // FAB MENU //
+        //////////////
+
+        /////////////////////////
+        // CHANGE PROVIDER FAB //
+        /////////////////////////
+
+        View.OnClickListener changeProviderListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(getActivity(), MainActivity.themeId);
+                builder.setSingleChoiceItems(quoteProviders, 0, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        quoteProvider = quoteProviders[i];
+                        changeProvider(quoteProviders[i]);
+                    }
+                });
+                builder.setPositiveButton("Close", null);
+                builder.setTitle("Change Quote Provider");
+                providerDialog = builder.create();
+                WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
+                lp.copyFrom(providerDialog.getWindow().getAttributes());
+                lp.width = WindowManager.LayoutParams.WRAP_CONTENT;
+                lp.height = WindowManager.LayoutParams.WRAP_CONTENT;
+                lp.gravity = Gravity.CENTER;
+                providerDialog.getWindow().setAttributes(lp);
+                providerDialog.show();
+            }
+        };
+
+        changeProviderLayout = view.findViewById(R.id.fabtext_change_provider);
+        changeProviderFab = view.findViewById(R.id.fab_change_provider);
+        changeProviderFab.setOnClickListener(changeProviderListener);
+
+        changeProviderInfo = view.findViewById(R.id.text_change_provider);
+        changeProviderInfo.setOnClickListener(changeProviderListener);
+
+        /////////////////////
+        // CLEAR QUOTE FAB //
+        /////////////////////
+
+        View.OnClickListener clearQuoteListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                quoteArrayList.clear();
+                quoteAdapter.notifyDataSetChanged();
+                quoteRecyclerView.removeAllViews();
+                showViewByTag(gibFragDefaultLayout);
+            }
+        };
+
+        clearQuoteLayout = view.findViewById(R.id.fabtext_remove_quotes);
+        clearQuoteFab = view.findViewById(R.id.fab_remove_quotes);
+        clearQuoteFab.setOnClickListener(clearQuoteListener);
+
+        clearQuoteInfo = view.findViewById(R.id.text_remove_quotes);
+        clearQuoteInfo.setOnClickListener(clearQuoteListener);
+
+        // Hide the Layouts which hold these FABs and Labels, initially
+        changeProviderLayout.setVisibility(View.GONE);
+        clearQuoteLayout.setVisibility(View.GONE);
+        // Set their Alpha (Transparency) to 0 (Fully Transparent), for the convenience of proper animation
+        changeProviderInfo.setAlpha(0);
+        clearQuoteInfo.setAlpha(0);
 
         // If no quotes are present
         if (sharedPreferences.getBoolean("IS_USER_INTRODUCED", false))
@@ -206,35 +318,104 @@ public class GibQuoteFragment extends Fragment {
         else {
             Log.i(TAG, "Let's Introduce ourselves");
             showIntroTapTargets(view);
+            sharedPreferences.edit().putBoolean("IS_USER_INTRODUCED", true).apply();
         }
 
-        // Provides user to select an entry from a list of dropdown entries
-        Spinner providerSpinner = view.findViewById(R.id.provider_select);
-        providerSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        // Animator to animate an Object, with the specified animation property
+        fabAnimator = ObjectAnimator.ofFloat(
+                gibQuoteFab, // Object to animate
+                "rotation", // Animation property - I wanna rotate it
+                0f, 360f // Animation's initial and final values
+        ).setDuration(500); // Duration of animation
+
+        return view;
+    }
+
+    // Convenience method
+    private void showViewByTag(View viewToShow) {
+        quoteRecyclerView.setVisibility(View.GONE);
+        fabRootLayout.setVisibility(View.GONE);
+        gibFragDefaultLayout.setVisibility(View.GONE);
+        viewToShow.setVisibility(View.VISIBLE);
+    }
+
+    private void showFabMenu() {
+        td.startTransition(200);
+        fabAnimator.start(); // Start the animation, it should complete in 500 seconds
+        // Create a new thread, which would change the icon while the animation is taking place
+        // In this case, I'm changing the icon in midway of animation :D
+        // Delay time is the second argument
+        new Handler().postDelayed(new Runnable() {
             @Override
-            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                quoteProvider = adapterView.getSelectedItem().toString();
-                changeProvider(quoteProvider);
+            public void run() {
+                gibQuoteFab.setImageResource(R.drawable.ic_close_black_24dp);
             }
+        }, 250);
+        // Workaround to Disable (Interactions with) RecyclerView
+        // RecyclerView's item checks for this boolean
+        // if this is set to false, the Listener code wouldn't be executed
+        QuoteAdapter.isClickable = false;
+        // Statue! -- Make the RecyclerView non-scrollable
+        quoteRecyclerView.setLayoutFrozen(true);
+        // Get the FAB Menu up
+        fabRootLayout.setVisibility(View.VISIBLE);
+        // Animate the FAB labels
+        changeProviderInfo.animate().alpha(1).setDuration(200);
+        clearQuoteInfo.animate().alpha(1).setDuration(200);
+        gibQuoteInfo.animate().alpha(1).setDuration(200);
+        // Make the layouts holding these labels, visible
+        changeProviderLayout.setVisibility(View.VISIBLE);
+        clearQuoteLayout.setVisibility(View.VISIBLE);
+        gibQuoteInfo.setVisibility(View.VISIBLE);
+        // Translate these layouts to specified positions
+        changeProviderLayout.animate().translationYBy(-190);
+        clearQuoteLayout.animate().translationYBy(-360);
+        // Fabs are shown, make the back
+        areFabsShown = true;
+    }
 
+    // Quite opposite of showFabMenu, except for Animating labels
+    private void hideFabMenu() {
+        td.reverseTransition(200);
+
+        fabAnimator.reverse();
+
+        new Handler().postDelayed(new Runnable() {
             @Override
-            public void onNothingSelected(AdapterView<?> adapterView) {
+            public void run() {
+                gibQuoteFab.setImageResource(R.drawable.ic_format_quote_black_24dp);
+            }
+        }, 250);
 
+        QuoteAdapter.isClickable = true;
+        quoteRecyclerView.setLayoutFrozen(false);
+
+        // Animation calls are asynchronous. So hide the Small FAB layouts, ONLY after the
+        // animation is complete
+        changeProviderInfo.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                changeProviderLayout.setVisibility(View.GONE);
+            }
+        });
+        clearQuoteInfo.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                clearQuoteLayout.setVisibility(View.GONE);
+            }
+        });
+        gibQuoteInfo.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                gibQuoteInfo.setVisibility(View.GONE);
+                fabRootLayout.setVisibility(View.GONE);
             }
         });
 
-        // Adapter which would provide the Dropdown elements
-        // And listen for changes in respective elements (select events)
-        ArrayAdapter<String> providerArrayAdapter = new ArrayAdapter<>(
-                mContext,
-                R.layout.support_simple_spinner_dropdown_item,
-                quoteProviders
-        );
+        changeProviderLayout.animate().translationYBy(190);
+        clearQuoteLayout.animate().translationYBy(360);
 
-        providerArrayAdapter.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item);
-        providerSpinner.setAdapter(providerArrayAdapter);
-
-        return view;
+        areFabsShown = false;
     }
 
     // Method to change JSON parameters based on the quoteProvider selected
@@ -319,9 +500,6 @@ public class GibQuoteFragment extends Fragment {
             quoteAdapter.notifyItemInserted(quoteArrayList.size());
             // Scroll the RecyclerView to given position, smoothly
             quoteRecyclerView.smoothScrollToPosition(quoteAdapter.getItemCount() - 1);
-            // Experimental! Do not uncomment xD
-            // NotificationUtils.getInstance(getContext()).issueNotification(new Quote(quoteText, authorText));
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -348,26 +526,9 @@ public class GibQuoteFragment extends Fragment {
                 .createFromAsset(getActivity().getAssets(),
                         "fonts/comfortaa/comfortaa_bold.ttf");
 
-        TapTarget providerTapTarget = TapTarget.forView(view.findViewById(R.id.provider_select),
-                "Get started",
-                "Select Provider from which you'd fetch quotes")
-                .outerCircleColor(R.color.colorPrimary)
-                .outerCircleAlpha(0.96f)
-                .targetCircleColor(android.R.color.white)
-                .titleTextSize(32)
-                .titleTextColor(android.R.color.white)
-                .descriptionTextSize(20)
-                .descriptionTextColor(R.color.colorGray)
-                .titleTypeface(boldTypeFace)
-                .dimColor(android.R.color.black)
-                .drawShadow(true)
-                .cancelable(true)
-                .transparentTarget(true)
-                .targetRadius(90);
-
         TapTarget gibQuoteTapTarget = TapTarget.forView(view.findViewById(R.id.gib_quote_fab),
-                "One last step",
-                "Press to fetch a quote!")
+                "Get Started",
+                "Single tap to fetch a quote\nLong Press to view Options")
                 .outerCircleColor(R.color.colorPrimary)
                 .outerCircleAlpha(0.96f)
                 .targetCircleColor(android.R.color.white)
@@ -382,33 +543,7 @@ public class GibQuoteFragment extends Fragment {
                 .transparentTarget(true)
                 .targetRadius(60);
 
-        new TapTargetSequence(getActivity())
-                .targets(providerTapTarget, gibQuoteTapTarget)
-                .listener(new TapTargetSequence.Listener() {
-                    @Override
-                    public void onSequenceFinish() {
-                        Log.i(TAG, "Introduction complete, start Gibbing Quotes");
-                        Toast.makeText(mContext, "You're good to go!", Toast.LENGTH_LONG).show();
-                        sharedPreferences.edit()
-                                .putBoolean("IS_USER_INTRODUCED", true)
-                                .apply();
-                    }
-
-                    @Override
-                    public void onSequenceStep(TapTarget lastTarget, boolean targetClicked) {
-                        if (!targetClicked) {
-                            // Seems the user knows everything
-                            sharedPreferences.edit()
-                                    .putBoolean("IS_USER_INTRODUCED", true)
-                                    .apply();
-                        }
-                    }
-
-                    @Override
-                    public void onSequenceCanceled(TapTarget lastTarget) {
-                        Log.d(TAG, "Intro Sequence Cancelled");
-                    }
-                }).start();
+        TapTargetView.showFor(getActivity(), gibQuoteTapTarget);
     }
 
     @Override
@@ -417,10 +552,33 @@ public class GibQuoteFragment extends Fragment {
         Log.d(TAG, "Fragment onDestroyView called");
         // GSON can convert De-serialized Data (Java Objects) to Serialized Data (JSON) and vice-versa
         // https://github.com/google/gson
-        String quoteJson = new Gson().toJson(quoteArrayList);
-        // Save the serialized JSON String as a Preference
-        sharedPreferences.edit()
-                .putString("quoteData", quoteJson)
-                .apply();
+        if(!quoteArrayList.isEmpty()) {
+            String quoteJson = new Gson().toJson(quoteArrayList);
+            // Save the serialized JSON String as a Preference
+            sharedPreferences.edit()
+                    .putString("quoteData", quoteJson)
+                    .apply();
+        } else
+            sharedPreferences.edit().putString("quoteData", null).apply();
+        // Hide the 'Change Provider' Dialog
+        if(providerDialog != null)
+            providerDialog.dismiss();
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent motionEvent) {
+        // If the touch event is on fabRootLayout
+        if(view.getTag().equals("FABROOT")) {
+            // If the fabMenu is opened  and the gesture performed on fabRootLayout is complete
+            if (areFabsShown  && motionEvent.getAction() == MotionEvent.ACTION_UP) {
+                // Acknowledge the event by hiding the fabMenu
+                Log.d(TAG, "Gesture performed in FABROOT is complete");
+                Log.d(TAG, "Hiding FAB Menu");
+                view.performClick();
+                hideFabMenu();
+                return false;
+            }
+        }
+        return true;
     }
 }

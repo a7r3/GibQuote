@@ -8,4 +8,32 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:orientation="vertical" android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/fav_quote_fragment_default_layout"
+        android:gravity="center">
+
+        <ImageView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:src="@drawable/fav_frag_image"
+            android:tint="@color/grey"/>
+
+        <TextView
+            android:padding="8dp"
+            android:textSize="22sp"
+            android:fontFamily="@font/comfortaa_bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="No Favorites Yet ?" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="italic"
+            android:text="Star some quotes, and you'd see them here!" />
+
+    </LinearLayout>
+
 </RelativeLayout>

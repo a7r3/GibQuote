@@ -2,6 +2,7 @@ package com.arvind.quote.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
 
     private final List<Quote> quoteList;
     private Context context = null;
+    public static boolean isClickable = true;
 
     public QuoteAdapter(Context context, List<Quote> quoteDetails) {
         this.context = context;
@@ -88,6 +90,8 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
             starQuoteView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    if(!isClickable)
+                        return;
                     Quote selectedQuote = quoteList.get(getAdapterPosition());
                     if (selectedQuote.isStarred()) {
                         CommonUtils.removeFromFavQuotesList(context, selectedQuote.getId());
@@ -104,6 +108,9 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
+                    Log.d("QAdapter", "kek");
+                    if(!isClickable)
+                        return false;
                     CommonUtils.shareQuote(context, quoteList.get(getAdapterPosition()));
                     return true;
                 }

@@ -49,6 +49,10 @@
         <item name="android:backgroundTint" tools:targetApi="lollipop">?colorAccent</item>
     </style>
 
+    <style name="someMiniFabStyle">
+        <item name="android:backgroundTint" tools:targetApi="lollipop">?colorPrimaryDark</item>
+    </style>
+
     <style name="AnotherAppTheme" parent="@style/PreferenceFixTheme.NoActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
@@ -114,6 +118,11 @@
     <style name="DialogTheme" parent="Base.Theme.AppCompat.Dialog.FixedSize">
         <item name="android:windowActionBar">false</item>
         <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <style name="DialogAnim">
+        <item name="android:windowEnterAnimation">@anim/slide_in_left</item>
+        <item name="android:windowExitAnimation">@anim/slide_out_right</item>
     </style>
 
 </resources>

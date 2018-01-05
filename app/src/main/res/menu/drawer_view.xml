@@ -4,7 +4,7 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/gib_quotes_item"
-            android:icon="@drawable/ic_sms_black_24dp"
+            android:icon="@drawable/ic_format_quote_black_24dp"
             android:title="Gib Quotes" />
         <item
             android:id="@+id/fav_quotes_item"

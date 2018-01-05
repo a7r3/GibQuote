@@ -4,12 +4,12 @@
         android:width="0dp"
         android:color="@android:color/transparent" />
 
-    <solid android:color="@color/colorTag" />
+    <solid android:color="@color/colorLightCardView" />
 
     <padding
         android:left="1dp"
         android:right="1dp"
         android:top="1dp" />
 
-    <corners android:radius="16dp" />
+    <corners android:radius="4dp" />
 </shape>
