@@ -244,9 +244,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             bottomNavigationView.setVisibility(View.VISIBLE);
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             drawerToggle.setDrawerIndicatorEnabled(false);
-            hideActionBar();
         } else {
-            showActionBar();
             bottomNavigationView.setVisibility(View.GONE);
             drawerToggle.setDrawerIndicatorEnabled(true);
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
