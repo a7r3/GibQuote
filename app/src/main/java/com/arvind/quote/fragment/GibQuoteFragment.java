@@ -42,6 +42,7 @@ import com.arvind.quote.R;
 import com.arvind.quote.adapter.Quote;
 import com.arvind.quote.adapter.QuoteAdapter;
 import com.arvind.quote.database.GibDatabaseHelper;
+import com.arvind.quote.utils.Updater;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetView;
 import com.google.gson.Gson;
@@ -51,6 +52,9 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Random;
+
+import static com.arvind.quote.MainActivity.GIT_TAG_URL;
+import static com.arvind.quote.MainActivity.isStoragePermissionGranted;
 
 public class GibQuoteFragment extends Fragment implements View.OnTouchListener {
 
@@ -92,15 +96,13 @@ public class GibQuoteFragment extends Fragment implements View.OnTouchListener {
     private int chosenProviderIndex = 0;
     // The Message to be shown to the user if there are no quotes on the Recycler
     private LinearLayout gibFragDefaultLayout;
-    // OnScrollListener for RecyclerView, primarily used for hiding and showing FAB when
-    // scrolled
-    private RecyclerView.OnScrollListener recyclerOnScrollListener;
+    private View view;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable final Bundle savedInstanceState) {
 
-        View view = inflater.inflate(R.layout.gib_quote_fragment, container, false);
+        view = inflater.inflate(R.layout.gib_quote_fragment, container, false);
 
         MainActivity.setActionBarTitle("GibQuote");
 
@@ -177,58 +179,6 @@ public class GibQuoteFragment extends Fragment implements View.OnTouchListener {
             quoteProviders = new String[]{"Offline"};
         }
 
-        // Adding an Listener which ...
-        // Hides the FAB when RecyclerView is scrolled down
-        // Gets the FAB back when RecyclerView is scrolled up
-        recyclerOnScrollListener = new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-
-                // dy - Instantaneous change in 'y' co-ordinate
-                // Origin is at Top-Left corner
-                // scrollDown -> Final 'y' co-ordinate is lesser than (or below) Initial 'y' co-ordinate
-                //               which results in a positive difference
-                // scrollUp -> Final 'y' Co-ordinate is greater than (or above) Initial 'y' co-ordinate
-                //             which results in a Negative difference
-
-                // If scrollDown && the FAB is visible
-                if (dy > 0 && gibQuoteFab.getVisibility() == View.VISIBLE) {
-                    // then hide it
-                    gibQuoteFab.hide();
-                    // Create a separate thread, which sleeps for 1000ms
-                    // And shows the FAB after it wakes up :P
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                Thread.sleep(1000);
-                            } catch (InterruptedException ie) {
-                                ie.printStackTrace();
-                            }
-
-                            // Workaround condition
-                            // Scroll through RecyclerView, switch to another Fragment immediately
-                            // And the app crashes because FragmentActivity is no more...
-                            // Tried removing the recyclerView listener (this), but didn't work
-                            if(getActivity() != null)
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        gibQuoteFab.show();
-                                    }
-                                });
-                            }
-                    }).start();
-                } // else If scrollUp && the FAB is not Visible
-                else if (dy < 0 && gibQuoteFab.getVisibility() != View.VISIBLE) {
-                    // then show that FAB
-                    gibQuoteFab.show();
-                }
-            }
-        };
-
-        quoteRecyclerView.addOnScrollListener(recyclerOnScrollListener);
-
         gibDatabaseHelper = GibDatabaseHelper.getInstance(mContext.getApplicationContext());
 
         // generateStuffs on receiving a click on FAB
@@ -236,7 +186,7 @@ public class GibQuoteFragment extends Fragment implements View.OnTouchListener {
             @Override
             public void onClick(View v) {
                 if(isFabMenuShown)
-                    hideFabMenu();
+                    hideFabMenu(false, null);
                 else {
                     showViewByTag(quoteRecyclerView);
                     if (quoteProvider.equals("Offline")) {
@@ -254,7 +204,7 @@ public class GibQuoteFragment extends Fragment implements View.OnTouchListener {
             @Override
             public boolean onLongClick(View view) {
                 if(isFabMenuShown)
-                    hideFabMenu();
+                    hideFabMenu(false, null);
                 else
                     showFabMenu();
                 return true;
@@ -283,7 +233,7 @@ public class GibQuoteFragment extends Fragment implements View.OnTouchListener {
                 builder.setPositiveButton("Select", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
-                        hideFabMenu();
+                        hideFabMenu(true, "Getting Quotes from " + quoteProviders[chosenProviderIndex]);
                     }
                 });
                 builder.setTitle("Change Quote Provider");
@@ -315,7 +265,7 @@ public class GibQuoteFragment extends Fragment implements View.OnTouchListener {
                 quoteArrayList.clear();
                 quoteAdapter.notifyDataSetChanged();
                 quoteRecyclerView.removeAllViews();
-                hideFabMenu();
+                hideFabMenu(true, "Removed all Quotes");
             }
         };
 
@@ -349,6 +299,20 @@ public class GibQuoteFragment extends Fragment implements View.OnTouchListener {
                 0f, 360f // Animation's initial and final values
         ).setDuration(500); // Duration of animation
 
+        if (isStoragePermissionGranted)
+            if (sharedPreferences.getBoolean("UPDATE_CHECK", true))
+                new Updater(getActivity())
+                        .setTagsUrl(GIT_TAG_URL)
+                        .setRootLayout(R.id.root_layout)
+                        .setAppUpdatedListener(new Updater.AppUpdated() {
+                            @Override
+                            public void onAppUpdated() {
+                                Snackbar.make(view,
+                                        "We're updated!",
+                                        Snackbar.LENGTH_SHORT).show();
+                            }
+                        })
+                        .checkForUpdates();
         return view;
     }
 
@@ -389,15 +353,19 @@ public class GibQuoteFragment extends Fragment implements View.OnTouchListener {
         clearQuoteLayout.setVisibility(View.VISIBLE);
         gibQuoteInfo.setVisibility(View.VISIBLE);
         // Translate these layouts to specified positions
-        changeProviderLayout.animate().translationYBy(-190);
-        clearQuoteLayout.animate().translationYBy(-360);
+        changeProviderLayout.animate().translationYBy(-190).withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                clearQuoteLayout.animate().translationYBy(-180);
+            }
+        });
         // Fabs are shown, make the back
         isFabMenuShown = true;
     }
 
     // Quite opposite of showFabMenu, except for Animating labels
     // and hiding the RootFab's label after this animation is complete
-    private void hideFabMenu() {
+    private void hideFabMenu(final boolean isActionPerformed, final String messageToShow) {
         td.reverseTransition(200);
 
         fabAnimator.reverse();
@@ -414,31 +382,38 @@ public class GibQuoteFragment extends Fragment implements View.OnTouchListener {
 
         // Animation calls are asynchronous. So hide the Small FAB layouts, ONLY after the
         // animation is complete
-        changeProviderInfo.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
-            @Override
-            public void run() {
-                changeProviderLayout.setVisibility(View.GONE);
-            }
-        });
         clearQuoteInfo.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
             @Override
             public void run() {
                 clearQuoteLayout.setVisibility(View.GONE);
+                changeProviderInfo.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
+                    @Override
+                    public void run() {
+                        changeProviderLayout.setVisibility(View.GONE);
+                    }
+                });
             }
         });
-        gibQuoteInfo.animate().alpha(0).setDuration(200).withEndAction(new Runnable() {
+
+        gibQuoteInfo.animate().alpha(0).setDuration(400).withEndAction(new Runnable() {
             @Override
             public void run() {
                 gibQuoteInfo.setVisibility(View.GONE);
                 fabRootLayout.setVisibility(View.GONE);
+                if(isActionPerformed && messageToShow != null)
+                    Snackbar.make(view, messageToShow, Snackbar.LENGTH_LONG).show();
             }
         });
 
         if(quoteAdapter.getItemCount() == 0)
             gibFragDefaultLayout.setVisibility(View.VISIBLE);
 
-        changeProviderLayout.animate().translationYBy(190);
-        clearQuoteLayout.animate().translationYBy(360);
+        clearQuoteLayout.animate().translationYBy(180).withEndAction(new Runnable() {
+            @Override
+            public void run() {
+                changeProviderLayout.animate().translationYBy(190);
+            }
+        });
 
         isFabMenuShown = false;
     }
@@ -600,7 +575,7 @@ public class GibQuoteFragment extends Fragment implements View.OnTouchListener {
                 Log.d(TAG, "Gesture performed in FABROOT is complete");
                 Log.d(TAG, "Hiding FAB Menu");
                 view.performClick();
-                hideFabMenu();
+                hideFabMenu(false, null);
                 return false;
             }
         }

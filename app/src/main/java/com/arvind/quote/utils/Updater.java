@@ -72,7 +72,16 @@ public class Updater {
     private LinearLayout progressLayout;
     // The ProgressBar
     private ProgressBar progressBar;
+    public AppUpdated appUpdated;
 
+    public Updater setAppUpdatedListener(AppUpdated appUpdatedListener) {
+        this.appUpdated = appUpdatedListener;
+        return this;
+    }
+
+    public interface AppUpdated {
+        void onAppUpdated();
+    }
     /**
      * Creates an Updater Instance
      *
@@ -163,9 +172,8 @@ public class Updater {
                             } else if (currentVersionPosition == (response.length() - 1)) {
                                 // Current Version is at the End of the Tags list, so we're updated
                                 Log.d(TAG, "We're updated");
-                                Toast.makeText(context,
-                                        "We're updated!",
-                                        Toast.LENGTH_LONG).show();
+                                if(appUpdated != null)
+                                    appUpdated.onAppUpdated();
                             } else { // We're not updated
                                 // The total number of Tag Requests
                                 tagRequestCount = (response.length() - 1) - currentVersionPosition;

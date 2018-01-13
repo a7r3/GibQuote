@@ -1,6 +1,6 @@
 # GibQuote
 
-<img src="https://user-images.githubusercontent.com/14874906/33614955-c87e6be0-d9fe-11e7-9f62-72dd3cfb046c.png" width="576" height="1024">
+<img src="https://user-images.githubusercontent.com/14874906/34907584-1768d6e8-f8a7-11e7-80fc-1b3f2334f838.png">
 
 <b>Random Project</b> to fetch <b>Random Quotes</b> from <b>Random Providers</b>
 
@@ -10,27 +10,35 @@ Application Icon used from <b>[FlatIcon](https://flaticon.com)
 
 ## Features
 
-* Fetch quotes from three providers
+* Fetch quotes from three online providers (+1 Offline)
   - **Offline Quote Database** (gathered from internet)
     - 19997 Quotes - Some of them are faulty, blame my extraction script ;-;
   - [Talaikis](https://talaikis.com/random_quotes_api)
   - [Forismatic](https://forismatic.com/en/api)
   - [Storm](https://quotes.stormconsultancy.co.uk/api)
 
-* Share Quote by long-pressing it
+> Quote providers can be changed by long pressing the FAB
+> and selecting 'Change Quote Provider'
 
-* Save Favorite Quotes (SQLite)
+* **Share a Quote** to your favorite social circles by long-pressing it
+* **Save Quotes** which you may like
   - Double Tap a quote to delete it (after additional prompt)
-
-* (TODO) Show Quotes / QoTD at a particular time (Notification)
-
+* Show **Quote of the Day** at a particular time, every day! (Notification)
+* **Get your App updated**, with the help of In-built updater, using GitHub API
 * Three Base themes
   - Light
   - Dark
   - Translucent (with Animating Gradients)
+* Two ways of navigation
+  - Navigation Drawer
+  - Bottom Navigation menu
 
-* (TODO) Set of Primary and Accent color schemes
+## TODO
 
+* Set of Primary and Accent color schemes
+* Using Firebase JobDispatcher / Evernote's android-job for Scheduling Notifications
+* Grabbing some other quotes for you! [Need to add 5421 + 74000 Quotes]
+* You say!
 
 ## License
 
