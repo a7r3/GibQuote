@@ -184,6 +184,8 @@ public class Updater {
                                 // Contains multiple Volley Requests which are to be executed
                                 // ... only if this request is successful.
                                 obtainTagMessages(currentVersionPosition, response);
+                                // updates are available!
+                                isUpdateAvailable = true;
                                 // Fire up the dialog
                                 createAlertDialog();
                             }
@@ -290,6 +292,7 @@ public class Updater {
      * @param changeLog The ChangeLog string which would be shown to the user
      */
     private void setUpdateMessage(String[] changeLog) {
+        Log.d(TAG, "Showing Update Message");
         progressBar.setIndeterminate(false);
         progressLayout.setVisibility(View.GONE);
         updateMessage.setVisibility(View.VISIBLE);
