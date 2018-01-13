@@ -108,7 +108,6 @@ public class QuoteAdapter extends RecyclerView.Adapter<QuoteAdapter.QuoteViewHol
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View view) {
-                    Log.d("QAdapter", "kek");
                     if(!isClickable)
                         return false;
                     CommonUtils.shareQuote(context, quoteList.get(getAdapterPosition()));

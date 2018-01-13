@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     private final String[] requiredPerms = {
             Manifest.permission.WRITE_EXTERNAL_STORAGE
     };
-    private boolean isStoragePermissionGranted = false;
+    public static boolean isStoragePermissionGranted = false;
     // Layout under which fragments would reside
     private DrawerLayout drawerLayout;
     // Provides toggling action to open the Navigation Drawer
@@ -71,16 +71,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
     public static void setActionBarTitle(String title) {
         if (actionBar != null)
             actionBar.setTitle(title);
-    }
-
-    public static void showActionBar() {
-        if (actionBar != null)
-            actionBar.show();
-    }
-
-    public static void hideActionBar() {
-        if (actionBar != null)
-            actionBar.hide();
     }
 
     @Override
@@ -202,7 +192,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
         setActionBarTitle("GibQuote");
 
         // Listen for clicks on any MenuItem present in the Navigation Drawer
-        // MenuItem is Identified by its position
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -250,12 +239,6 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         }
 
-        if (isStoragePermissionGranted)
-            if (sharedPreferences.getBoolean("UPDATE_CHECK", true))
-                new Updater(this)
-                        .setTagsUrl(GIT_TAG_URL)
-                        .setRootLayout(R.id.root_layout)
-                        .checkForUpdates();
     }
 
     private void switchFragment(MenuItem item) {
@@ -291,7 +274,7 @@ public class MainActivity extends AppCompatActivity implements PreferenceFragmen
             getSupportFragmentManager()
                     .beginTransaction()
                     .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                    .replace(R.id.frame_layout, fragment, fragment.getClass().getCanonicalName())
+                    .replace(R.id.frame_layout, fragment, fragment.getClass().getSimpleName())
                     .commit();
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/gib_quote_root_layout"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/quote_list_view"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="wrap_content" />
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/gib_quote_fragment_default_layout"
@@ -49,92 +53,88 @@
         android:id="@+id/fab_root_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@drawable/transition">
+        android:tag="FabRoot"
+        android:background="@drawable/transition" />
 
-        <LinearLayout
-            android:id="@+id/fabtext_change_provider"
+    <LinearLayout
+        android:id="@+id/fabtext_remove_quotes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        app:layout_anchor="@id/fabtext_change_provider"
+        app:layout_anchorGravity="right|center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/text_remove_quotes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:layout_marginRight="24dp"
+            android:background="@drawable/round"
+            android:elevation="2dp"
+            android:padding="4dp"
+            android:text="Clear Quotes"
+            android:textColor="@android:color/black"
+            android:textStyle="bold" />
 
-            <TextView
-                android:id="@+id/text_change_provider"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="24dp"
-                android:background="@drawable/round"
-                android:elevation="2dp"
-                android:padding="4dp"
-                android:text="Change Quote Provider"
-                android:textColor="@android:color/black"
-                android:textStyle="bold" />
-
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fab_change_provider"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="23dp"
-                android:layout_marginRight="23dp"
-                android:layout_marginTop="23dp"
-                android:src="@drawable/ic_shuffle_black_24dp"
-                app:backgroundTint="?colorPrimary"
-                app:elevation="@dimen/cardview_default_elevation"
-                app:fabSize="mini"
-                app:rippleColor="@color/cardview_light_background" />
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/fabtext_remove_quotes"
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_remove_quotes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
-            android:gravity="center"
-            android:orientation="horizontal">
+            android:layout_marginBottom="23dp"
+            android:layout_marginRight="23dp"
+            android:layout_marginTop="23dp"
+            android:src="@drawable/ic_delete_black_24dp"
+            app:backgroundTint="?colorPrimary"
+            app:elevation="@dimen/cardview_default_elevation"
+            app:fabSize="mini"
+            app:rippleColor="@color/cardview_light_background" />
 
-            <TextView
-                android:id="@+id/text_remove_quotes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginRight="24dp"
-                android:background="@drawable/round"
-                android:elevation="2dp"
-                android:padding="4dp"
-                android:text="Clear Quotes"
-                android:textColor="@android:color/black"
-                android:textStyle="bold" />
+    </LinearLayout>
 
-            <android.support.design.widget.FloatingActionButton
-                android:id="@+id/fab_remove_quotes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="23dp"
-                android:layout_marginRight="23dp"
-                android:layout_marginTop="23dp"
-                android:src="@drawable/ic_delete_black_24dp"
-                app:backgroundTint="?colorPrimary"
-                app:elevation="@dimen/cardview_default_elevation"
-                app:fabSize="mini"
-                app:rippleColor="@color/cardview_light_background" />
+    <LinearLayout
+        android:id="@+id/fabtext_change_provider"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_anchorGravity="center_vertical|right"
+        app:layout_anchor="@id/gib_quote_fab"
+        android:gravity="center"
+        android:orientation="horizontal">
 
-        </LinearLayout>
+        <TextView
+            android:id="@+id/text_change_provider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="24dp"
+            android:background="@drawable/round"
+            android:elevation="2dp"
+            android:padding="4dp"
+            android:text="Change Quote Provider"
+            android:textColor="@android:color/black"
+            android:textStyle="bold" />
 
-    </RelativeLayout>
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab_change_provider"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="23dp"
+            android:layout_marginRight="23dp"
+            android:layout_marginTop="23dp"
+            android:src="@drawable/ic_shuffle_black_24dp"
+            app:backgroundTint="?colorPrimary"
+            app:elevation="@dimen/cardview_default_elevation"
+            app:fabSize="mini"
+            app:rippleColor="@color/cardview_light_background" />
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentRight="true"
+        android:layout_gravity="bottom|right|end"
         android:gravity="center"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        app:layout_behavior="com.arvind.quote.behavior.GibFabBehavior">
 
         <TextView
             android:id="@+id/gib_quote_fab_info"
@@ -160,4 +160,4 @@
 
     </LinearLayout>
 
-</RelativeLayout>
+</android.support.design.widget.CoordinatorLayout>

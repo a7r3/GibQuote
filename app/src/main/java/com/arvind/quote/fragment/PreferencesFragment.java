@@ -36,6 +36,7 @@ public class PreferencesFragment extends PreferenceFragmentCompatDividers {
 
     private String getThemeSummary() {
         String themeKey = sharedPreferences.getString("THEME_KEY", "light");
+        Log.d(TAG, "Theme : " + themeKey);
         return "Current: " + themeKey.substring(0, 1).toUpperCase() + themeKey.substring(1);
     }
 
@@ -74,7 +75,7 @@ public class PreferencesFragment extends PreferenceFragmentCompatDividers {
                         .putInt("QOTD_HOUR", timeWrapper.hour)
                         .putInt("QOTD_MIN", timeWrapper.minute)
                         .apply();
-                Log.i(TAG, timeWrapper.hour + " : " +
+                Log.d(TAG, "QoTD notification scheduled on " + timeWrapper.hour + " : " +
                         timeWrapper.minute);
                 Intent notifServiceIntent = new Intent(getContext(), SomeBroadReceiver.class);
                 notifServiceIntent.setAction(BuildConfig.APPLICATION_ID + ".TIME_SET_BY_USER");
