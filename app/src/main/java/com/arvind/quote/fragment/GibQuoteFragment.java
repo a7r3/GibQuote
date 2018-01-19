@@ -227,12 +227,12 @@ public class GibQuoteFragment extends Fragment implements View.OnTouchListener {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
                         chosenProviderIndex = i;
-                        changeProvider(quoteProviders[chosenProviderIndex]);
                     }
                 });
                 builder.setPositiveButton("Select", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        changeProvider(quoteProviders[chosenProviderIndex]);
                         hideFabMenu(true, "Getting Quotes from " + quoteProviders[chosenProviderIndex]);
                     }
                 });
@@ -421,6 +421,7 @@ public class GibQuoteFragment extends Fragment implements View.OnTouchListener {
     // Method to change JSON parameters based on the quoteProvider selected
     // 'Offline' has no relevance here
     private void changeProvider(String quoteProvider) {
+        this.quoteProvider = quoteProvider;
         switch (quoteProvider) {
             case "Forismatic":
             default:
