@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider
+    android:initialLayout="@layout/widget_layout"
+    android:minHeight="120dp"
+    android:minWidth="180dp"
+    android:previewImage="@mipmap/quote_ic"
+    android:resizeMode="horizontal"
+    android:updatePeriodMillis="0"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+</appwidget-provider>

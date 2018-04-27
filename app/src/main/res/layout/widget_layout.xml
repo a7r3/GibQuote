@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?><!-- Quote View Skeleton for RecyclerView -->
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_quote_view"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:focusable="true">
+
+    <TextView
+        android:id="@+id/quote_text_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/star_quote_button"
+        android:paddingBottom="8dp"
+        android:paddingRight="8dp"
+        android:paddingLeft="8dp"
+        android:paddingTop="16dp"
+        android:textColor="#80FFFFFF"
+        android:text="NULL Life for the Win"
+        android:textSize="18sp"
+        android:layout_toEndOf="@id/star_quote_button"
+        android:paddingEnd="8dp" />
+
+    <TextView
+        android:id="@+id/author_text_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@id/quote_text_view"
+        android:textColor="#80FFFFFF"
+        android:padding="16dp"
+        android:text="- By Some Intelligent Guy"
+        android:textSize="16sp"
+        android:textStyle="italic|bold" />
+
+</RelativeLayout>
+
