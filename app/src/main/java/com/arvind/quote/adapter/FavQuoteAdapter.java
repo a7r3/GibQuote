@@ -3,7 +3,7 @@ package com.arvind.quote.adapter;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
 import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -21,7 +21,7 @@ import java.util.List;
 public class FavQuoteAdapter extends RecyclerView.Adapter<FavQuoteAdapter.QuoteViewHolder> {
 
     private final List<Quote> favQuoteList;
-    private Context context = null;
+    private Context context;
 
     public FavQuoteAdapter(Context context, List<Quote> quoteDetails) {
         this.context = context;
@@ -69,12 +69,9 @@ public class FavQuoteAdapter extends RecyclerView.Adapter<FavQuoteAdapter.QuoteV
             quoteTextView = itemView.findViewById(R.id.quote_text_view);
             authorTextView = itemView.findViewById(R.id.author_text_view);
 
-            itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    CommonUtils.shareQuote(context, favQuoteList.get(getAdapterPosition()));
-                    return true;
-                }
+            itemView.setOnLongClickListener(view -> {
+                CommonUtils.shareQuote(context, favQuoteList.get(getAdapterPosition()));
+                return true;
             });
 
 
@@ -88,24 +85,16 @@ public class FavQuoteAdapter extends RecyclerView.Adapter<FavQuoteAdapter.QuoteV
                             .setIcon(android.R.drawable.ic_menu_delete)
                             .setTitle("Confirm Deletion of Quote")
                             .setMessage("Doing this will remove this quote from Favorites list")
-                            .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    FavDatabaseHelper favDatabaseHelper = FavDatabaseHelper.getInstance(context);
-                                    favDatabaseHelper.removeFavQuote(quote.getId());
-                                    quote.setStarred(false);
-                                    favQuoteList.remove(quote);
-                                    notifyItemRemoved(getAdapterPosition());
-                                    if(getItemCount() == 0)
-                                        FavQuoteFragment.showDefaultFragLayout();
-                                }
+                            .setPositiveButton("Yes", (dialogInterface, i) -> {
+                                FavDatabaseHelper favDatabaseHelper = FavDatabaseHelper.getInstance(context);
+                                favDatabaseHelper.removeFavQuote(quote.getId());
+                                quote.setStarred(false);
+                                favQuoteList.remove(quote);
+                                notifyItemRemoved(getAdapterPosition());
+                                if(getItemCount() == 0)
+                                    FavQuoteFragment.showDefaultFragLayout();
                             })
-                            .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialogInterface, int i) {
-                                    dialogInterface.dismiss();
-                                }
-                            })
+                            .setNegativeButton("No", (dialogInterface, i) -> dialogInterface.dismiss())
                             .setCancelable(true)
                             .show();
 
@@ -114,12 +103,9 @@ public class FavQuoteAdapter extends RecyclerView.Adapter<FavQuoteAdapter.QuoteV
 
             });
 
-            itemView.setOnTouchListener(new View.OnTouchListener() {
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    view.performClick();
-                    return gestureDetector.onTouchEvent(motionEvent);
-                }
+            itemView.setOnTouchListener((view, motionEvent) -> {
+                view.performClick();
+                return gestureDetector.onTouchEvent(motionEvent);
             });
         }
     }
